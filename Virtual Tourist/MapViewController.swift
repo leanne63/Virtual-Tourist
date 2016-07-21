@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  MapViewController.swift
 //  Virtual Tourist
 //
 //  Created by leanne on 7/21/16.
@@ -8,8 +8,15 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class MapViewController: UIViewController {
+	
+	// MARK: - Constants
+	
+	let photoAlbumSegueID = "mapToPhotoAlbumSegue"
+	
 
+	// MARK: - Overrides
+	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		// Do any additional setup after loading the view, typically from a nib.
@@ -19,7 +26,13 @@ class ViewController: UIViewController {
 		super.didReceiveMemoryWarning()
 		// Dispose of any resources that can be recreated.
 	}
+	
+	
+	// MARK: - Actions
 
+	@IBAction func segueToPhotoAlbum(sender: UIButton) {
+		performSegueWithIdentifier(photoAlbumSegueID, sender: self)
+	}
 
 }
 
