@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <scenes>
-        <!--Map View Controller-->
+        <!--Virtual Tourist-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="MapViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
@@ -17,18 +17,28 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gfZ-2J-Z4Z">
-                                <rect key="frame" x="270" y="285" width="60" height="30"/>
-                                <state key="normal" title="Nav Test"/>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="mZP-pc-h1i">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                            </mapView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ys3-ud-2T5">
+                                <rect key="frame" x="277" y="285" width="46" height="30"/>
+                                <state key="normal" title="Button"/>
                                 <connections>
-                                    <action selector="segueToPhotoAlbum:" destination="BYZ-38-t0r" eventType="touchUpInside" id="pG9-ab-ehl"/>
+                                    <action selector="segueToPhotoAlbum:" destination="BYZ-38-t0r" eventType="touchUpInside" id="IHM-PJ-k7G"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="mZP-pc-h1i" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="3Rn-Rl-GtD"/>
+                            <constraint firstItem="mZP-pc-h1i" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" id="43u-qz-ozk"/>
+                            <constraint firstItem="mZP-pc-h1i" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="6Kh-rC-qfv"/>
+                            <constraint firstItem="mZP-pc-h1i" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="JFy-0U-mud"/>
+                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="oDO-B6-174"/>
+                    <navigationItem key="navigationItem" title="Virtual Tourist" id="oDO-B6-174"/>
                     <connections>
+                        <outlet property="mapView" destination="mZP-pc-h1i" id="u8Y-rj-UhG"/>
                         <segue destination="Lzf-sr-8sQ" kind="show" identifier="mapToPhotoAlbumSegue" id="3eI-q4-4hg"/>
                     </connections>
                 </viewController>
