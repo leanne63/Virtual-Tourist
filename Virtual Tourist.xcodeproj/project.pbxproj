@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D52938B21D48103C003CCD2A /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = D52938B11D48103C003CCD2A /* CoreDataStack.swift */; };
 		D592243D1D416809000D644B /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D592243C1D416809000D644B /* MapKit.framework */; };
 		D592243F1D44090A000D644B /* MapModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D592243E1D44090A000D644B /* MapModel.swift */; };
 		D59C88F21D41591100620064 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59C88F11D41591100620064 /* AppDelegate.swift */; };
@@ -38,6 +39,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D52938B11D48103C003CCD2A /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		D592243C1D416809000D644B /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		D592243E1D44090A000D644B /* MapModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapModel.swift; sourceTree = "<group>"; };
 		D59C88EE1D41591100620064 /* Virtual Tourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Virtual Tourist.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -157,6 +159,7 @@
 			children = (
 				D59C88F81D41591100620064 /* Virtual_Tourist.xcdatamodeld */,
 				D592243E1D44090A000D644B /* MapModel.swift */,
+				D52938B11D48103C003CCD2A /* CoreDataStack.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -304,6 +307,7 @@
 				D59C88F41D41591100620064 /* MapViewController.swift in Sources */,
 				D592243F1D44090A000D644B /* MapModel.swift in Sources */,
 				D59C88FA1D41591100620064 /* Virtual_Tourist.xcdatamodeld in Sources */,
+				D52938B21D48103C003CCD2A /* CoreDataStack.swift in Sources */,
 				D59C88F21D41591100620064 /* AppDelegate.swift in Sources */,
 				D59C89271D41607000620064 /* PhotoAlbumViewController.swift in Sources */,
 			);
