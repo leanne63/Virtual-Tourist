@@ -2,7 +2,8 @@
 //  CoreDataStack.swift
 //  Virtual Tourist
 //
-//  Created by leanne on 7/26/16.
+//	Provided by Udacity,
+//  Modified by leanne on 7/26/16.
 //  Copyright © 2016 leanne63. All rights reserved.
 //
 
