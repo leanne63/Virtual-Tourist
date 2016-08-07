@@ -23,6 +23,7 @@
 		D5C321A61D56B20600677C11 /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A21D56B20600677C11 /* Pin.swift */; };
 		D5C321A71D56B20600677C11 /* Photo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A31D56B20600677C11 /* Photo+CoreDataProperties.swift */; };
 		D5C321A81D56B20600677C11 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A41D56B20600677C11 /* Photo.swift */; };
+		D5C321CB1D57B1C700677C11 /* Extension_CLLocationCoordinate2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321CA1D57B1C700677C11 /* Extension_CLLocationCoordinate2D.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 		D5C321A21D56B20600677C11 /* Pin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pin.swift; sourceTree = "<group>"; };
 		D5C321A31D56B20600677C11 /* Photo+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Photo+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		D5C321A41D56B20600677C11 /* Photo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
+		D5C321CA1D57B1C700677C11 /* Extension_CLLocationCoordinate2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension_CLLocationCoordinate2D.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -179,6 +181,7 @@
 		D59C89251D415FA900620064 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D5C321CA1D57B1C700677C11 /* Extension_CLLocationCoordinate2D.swift */,
 				D59C88F11D41591100620064 /* AppDelegate.swift */,
 				D59C89001D41591100620064 /* Info.plist */,
 			);
@@ -323,6 +326,7 @@
 				D5C321A81D56B20600677C11 /* Photo.swift in Sources */,
 				D5C321A51D56B20600677C11 /* Pin+CoreDataProperties.swift in Sources */,
 				D52938B21D48103C003CCD2A /* CoreDataStack.swift in Sources */,
+				D5C321CB1D57B1C700677C11 /* Extension_CLLocationCoordinate2D.swift in Sources */,
 				D5C321A71D56B20600677C11 /* Photo+CoreDataProperties.swift in Sources */,
 				D59C88F21D41591100620064 /* AppDelegate.swift in Sources */,
 				D59C89271D41607000620064 /* PhotoAlbumViewController.swift in Sources */,
