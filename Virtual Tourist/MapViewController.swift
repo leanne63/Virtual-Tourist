@@ -16,6 +16,12 @@ class MapViewController: UIViewController {
 	private let photoAlbumSegueID = "mapToPhotoAlbumSegue"
 	
 
+	// MARK: - Properties (Non-Outlets)
+	
+	private var longPressBeginPoint: CGPoint!
+	private var longPressEndPoint: CGPoint!
+	
+	
 	// MARK: - Properties (Outlets)
 	
 	@IBOutlet weak var mapView: MKMapView!
@@ -46,6 +52,40 @@ class MapViewController: UIViewController {
 		storeCurrentMapRegion()
 		
 		performSegueWithIdentifier(photoAlbumSegueID, sender: self)
+	}
+	
+	@IBAction func longPressDidOccur(sender: UILongPressGestureRecognizer) {
+		
+		// TODO: Compare began and ended states to see if a pin was moved (assuming one already existed)
+		switch sender.state {
+			
+		case .Began:
+			longPressBeginPoint = sender.locationInView(mapView)
+			
+		case .Ended:
+			longPressEndPoint = sender.locationInView(mapView)
+			
+			// did annotation exist at this point? if so, don't create new one
+			let endCoordinate: CLLocationCoordinate2D = mapView.convertPoint(longPressEndPoint, toCoordinateFromView: mapView)
+			
+			if longPressEndPoint == longPressBeginPoint {
+				// drop new pin at this location (if one doesn't already exist)
+				
+				let pinAlreadyPresent = mapView.annotations.contains({ $0.coordinate == endCoordinate })
+				
+				let annotation = MKPointAnnotation()
+				annotation.coordinate = endCoordinate
+				
+				mapView.addAnnotation(annotation)
+			}
+			else {
+				// if pinPresentAtBeginPoint { // move pin to this new location }
+			}
+			
+		default:
+			// if it's any other case, just exit
+			return
+		}
 	}
 	
 	
