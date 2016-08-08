@@ -35,12 +35,16 @@
                     </view>
                     <navigationItem key="navigationItem" title="Virtual Tourist" id="oDO-B6-174"/>
                     <connections>
-                        <outlet property="mapView" destination="mZP-pc-h1i" id="u8Y-rj-UhG"/>
+                        <outlet property="mapView" destination="mZP-pc-h1i" id="NiP-fA-XFT"/>
                         <segue destination="Lzf-sr-8sQ" kind="show" identifier="mapToPhotoAlbumSegue" id="3eI-q4-4hg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="cRe-8j-AlM"/>
+                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="cRe-8j-AlM">
+                    <connections>
+                        <action selector="longPressDidOccur:" destination="BYZ-38-t0r" id="OW6-GP-D1S"/>
+                    </connections>
+                </pongPressGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="1231" y="418"/>
         </scene>

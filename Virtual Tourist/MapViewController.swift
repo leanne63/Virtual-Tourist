@@ -8,20 +8,15 @@
 
 import MapKit
 
-class MapViewController: UIViewController {
+class MapViewController: UIViewController, MKMapViewDelegate {
 	
 	// MARK: - Constants
 	
 	private let hasLaunchedKey = "hasLaunched"
 	private let photoAlbumSegueID = "mapToPhotoAlbumSegue"
+	private let pinViewReuseIdentifier = "reusablePinView"
 	
 
-	// MARK: - Properties (Non-Outlets)
-	
-	private var longPressBeginPoint: CGPoint!
-	private var longPressEndPoint: CGPoint!
-	
-	
 	// MARK: - Properties (Outlets)
 	
 	@IBOutlet weak var mapView: MKMapView!
@@ -32,12 +27,14 @@ class MapViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
+		mapView.delegate = self
+		
 		let hasLaunchedPreviously: Bool = NSUserDefaults.standardUserDefaults().boolForKey(hasLaunchedKey)
 		if !hasLaunchedPreviously {
 			// since hasn't launched previously, create the "has launched" value now
 			NSUserDefaults.standardUserDefaults().setBool(true, forKey: hasLaunchedKey)
 			
-			// store the initial map values
+			// store the initial map region
 			storeCurrentMapRegion()
 		}
 		
@@ -48,7 +45,7 @@ class MapViewController: UIViewController {
 	// MARK: - Actions
 
 	@IBAction func segueToPhotoAlbum(sender: UIButton) {
-		
+		// TODO: move this code into annotation selected function
 		storeCurrentMapRegion()
 		
 		performSegueWithIdentifier(photoAlbumSegueID, sender: self)
@@ -56,36 +53,34 @@ class MapViewController: UIViewController {
 	
 	@IBAction func longPressDidOccur(sender: UILongPressGestureRecognizer) {
 		
-		// TODO: Compare began and ended states to see if a pin was moved (assuming one already existed)
-		switch sender.state {
-			
-		case .Began:
-			longPressBeginPoint = sender.locationInView(mapView)
-			
-		case .Ended:
-			longPressEndPoint = sender.locationInView(mapView)
-			
-			// did annotation exist at this point? if so, don't create new one
+		if sender.state == UIGestureRecognizerState.Ended {
+			// get map location of press action
+			let longPressEndPoint: CGPoint = sender.locationInView(mapView)
 			let endCoordinate: CLLocationCoordinate2D = mapView.convertPoint(longPressEndPoint, toCoordinateFromView: mapView)
+		
+			// drop new pin at this location
+			let annotation = MKPointAnnotation()
+			annotation.coordinate = endCoordinate
 			
-			if longPressEndPoint == longPressBeginPoint {
-				// drop new pin at this location (if one doesn't already exist)
-				
-				let pinAlreadyPresent = mapView.annotations.contains({ $0.coordinate == endCoordinate })
-				
-				let annotation = MKPointAnnotation()
-				annotation.coordinate = endCoordinate
-				
-				mapView.addAnnotation(annotation)
-			}
-			else {
-				// if pinPresentAtBeginPoint { // move pin to this new location }
-			}
-			
-		default:
-			// if it's any other case, just exit
-			return
+			mapView.addAnnotation(annotation)
 		}
+	}
+	
+	
+	// MARK: - MKMapViewDelegate Actions
+	
+	func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+		
+		let pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: pinViewReuseIdentifier)
+		pinView.draggable = true
+		
+		return pinView
+	}
+	
+	func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+		
+		print("annotation was selected")
+		print("\tlat: \(view.annotation!.coordinate.latitude)\tlon: \(view.annotation!.coordinate.longitude)")
 	}
 	
 	
