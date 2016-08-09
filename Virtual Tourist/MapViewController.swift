@@ -69,14 +69,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	
 	// MARK: - MKMapViewDelegate Actions
 	
-	func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-		
-		let pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: pinViewReuseIdentifier)
-		pinView.draggable = true
-		
-		return pinView
-	}
-	
 	func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
 		
 		print("annotation was selected")
