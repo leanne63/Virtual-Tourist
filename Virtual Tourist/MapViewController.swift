@@ -64,6 +64,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			var newPin = Pin(context: coreDataStack.managedObjectContext)
 			newPin += endCoordinate
 			coreDataStack.saveContext()
+			
+			let flickr = Flickr()
+			flickr.getImages(newPin)
 		}
 	}
 	
