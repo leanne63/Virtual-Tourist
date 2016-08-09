@@ -51,7 +51,7 @@
         <!--Photo Album View Controller-->
         <scene sceneID="RFy-aj-cWV">
             <objects>
-                <collectionViewController id="h8R-oo-PGq" userLabel="Photo Album View Controller" customClass="PhotoAlbumViewController" sceneMemberID="viewController">
+                <collectionViewController id="h8R-oo-PGq" userLabel="Photo Album View Controller" customClass="PhotoAlbumViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="Fhk-ar-HdQ">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

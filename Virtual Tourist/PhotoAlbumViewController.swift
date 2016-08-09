@@ -1,5 +1,5 @@
 //
-//  PhotoViewController.swift
+//  PhotoAlbumViewController.swift
 //  Virtual Tourist
 //
 //  Created by leanne on 8/9/16.
@@ -10,7 +10,7 @@ import UIKit
 
 private let reuseIdentifier = "reusableCell"
 
-class PhotoViewController: UICollectionViewController {
+class PhotoAlbumViewController: UICollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
