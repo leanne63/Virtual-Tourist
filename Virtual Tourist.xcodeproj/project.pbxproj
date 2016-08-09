@@ -19,11 +19,11 @@
 		D59C88FF1D41591100620064 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D59C88FD1D41591100620064 /* LaunchScreen.storyboard */; };
 		D59C890A1D41591100620064 /* Virtual_TouristTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59C89091D41591100620064 /* Virtual_TouristTests.swift */; };
 		D59C89151D41591100620064 /* Virtual_TouristUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59C89141D41591100620064 /* Virtual_TouristUITests.swift */; };
-		D59C89271D41607000620064 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59C89261D41607000620064 /* PhotoAlbumViewController.swift */; };
 		D5C321A51D56B20600677C11 /* Pin+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A11D56B20600677C11 /* Pin+CoreDataProperties.swift */; };
 		D5C321A61D56B20600677C11 /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A21D56B20600677C11 /* Pin.swift */; };
 		D5C321A71D56B20600677C11 /* Photo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A31D56B20600677C11 /* Photo+CoreDataProperties.swift */; };
 		D5C321A81D56B20600677C11 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A41D56B20600677C11 /* Photo.swift */; };
+		D5C321D31D5A5E7000677C11 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321D21D5A5E7000677C11 /* PhotoAlbumViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,11 +62,11 @@
 		D59C89101D41591100620064 /* Virtual TouristUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Virtual TouristUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D59C89141D41591100620064 /* Virtual_TouristUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Virtual_TouristUITests.swift; sourceTree = "<group>"; };
 		D59C89161D41591100620064 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D59C89261D41607000620064 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
 		D5C321A11D56B20600677C11 /* Pin+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Pin+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		D5C321A21D56B20600677C11 /* Pin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pin.swift; sourceTree = "<group>"; };
 		D5C321A31D56B20600677C11 /* Photo+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Photo+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		D5C321A41D56B20600677C11 /* Photo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
+		D5C321D21D5A5E7000677C11 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,7 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				D59C88F31D41591100620064 /* MapViewController.swift */,
-				D59C89261D41607000620064 /* PhotoAlbumViewController.swift */,
+				D5C321D21D5A5E7000677C11 /* PhotoAlbumViewController.swift */,
 			);
 			name = ViewControllers;
 			sourceTree = "<group>";
@@ -332,12 +332,12 @@
 				D59C88FA1D41591100620064 /* Virtual_Tourist.xcdatamodeld in Sources */,
 				D5C321A61D56B20600677C11 /* Pin.swift in Sources */,
 				D5C321A81D56B20600677C11 /* Photo.swift in Sources */,
+				D5C321D31D5A5E7000677C11 /* PhotoAlbumViewController.swift in Sources */,
 				D5C321A51D56B20600677C11 /* Pin+CoreDataProperties.swift in Sources */,
 				D52938B21D48103C003CCD2A /* CoreDataStack.swift in Sources */,
 				D5C321A71D56B20600677C11 /* Photo+CoreDataProperties.swift in Sources */,
 				D59224421D46C119000D644B /* Extension_CLLocationCoordinate2D.swift in Sources */,
 				D59C88F21D41591100620064 /* AppDelegate.swift in Sources */,
-				D59C89271D41607000620064 /* PhotoAlbumViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

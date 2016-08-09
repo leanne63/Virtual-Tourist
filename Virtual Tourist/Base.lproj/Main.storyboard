@@ -36,7 +36,7 @@
                     <navigationItem key="navigationItem" title="Virtual Tourist" id="oDO-B6-174"/>
                     <connections>
                         <outlet property="mapView" destination="mZP-pc-h1i" id="NiP-fA-XFT"/>
-                        <segue destination="Lzf-sr-8sQ" kind="show" identifier="mapToPhotoAlbumSegue" id="3eI-q4-4hg"/>
+                        <segue destination="h8R-oo-PGq" kind="show" identifier="mapToPhotoAlbumSegue" id="zbE-0x-3Qf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -49,23 +49,38 @@
             <point key="canvasLocation" x="1231" y="418"/>
         </scene>
         <!--Photo Album View Controller-->
-        <scene sceneID="Mtx-cv-Ir1">
+        <scene sceneID="RFy-aj-cWV">
             <objects>
-                <viewController id="Lzf-sr-8sQ" customClass="PhotoAlbumViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="VgY-Kq-2Bn"/>
-                        <viewControllerLayoutGuide type="bottom" id="cig-FX-d6y"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="2v2-M6-Zaa">
+                <collectionViewController id="h8R-oo-PGq" userLabel="Photo Album View Controller" customClass="PhotoAlbumViewController" sceneMemberID="viewController">
+                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="Fhk-ar-HdQ">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                    <navigationItem key="navigationItem" id="vCB-Hk-he3"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="e2E-cw-CDq" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Sqc-fB-PEB">
+                            <size key="itemSize" width="50" height="50"/>
+                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                            <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        </collectionViewFlowLayout>
+                        <cells>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="reusableCell" id="ajp-8z-xpd">
+                                <rect key="frame" x="0.0" y="64" width="50" height="50"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                </view>
+                            </collectionViewCell>
+                        </cells>
+                        <connections>
+                            <outlet property="dataSource" destination="h8R-oo-PGq" id="UoD-fY-VQd"/>
+                            <outlet property="delegate" destination="h8R-oo-PGq" id="tkU-pa-DbC"/>
+                        </connections>
+                    </collectionView>
+                </collectionViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="KUj-KZ-GDE" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1994" y="418"/>
+            <point key="canvasLocation" x="1977" y="418"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="pos-Te-bEl">
