@@ -44,13 +44,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	
 	// MARK: - Actions
 
-	@IBAction func segueToPhotoAlbum(sender: UIButton) {
-		// TODO: move this code into annotation selected function
-		storeCurrentMapRegion()
-		
-		performSegueWithIdentifier(photoAlbumSegueID, sender: self)
-	}
-	
 	@IBAction func longPressDidOccur(sender: UILongPressGestureRecognizer) {
 		
 		if sender.state == UIGestureRecognizerState.Ended {
@@ -71,8 +64,11 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	
 	func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
 		
-		print("annotation was selected")
-		print("\tlat: \(view.annotation!.coordinate.latitude)\tlon: \(view.annotation!.coordinate.longitude)")
+		mapView.deselectAnnotation(view.annotation!, animated: false)
+		
+		storeCurrentMapRegion()
+		
+		performSegueWithIdentifier(photoAlbumSegueID, sender: self)
 	}
 	
 	
