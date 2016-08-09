@@ -6,20 +6,19 @@
 //  Copyright © 2016 leanne63. All rights reserved.
 //
 
-import Foundation
+import MapKit
 import CoreData
 
 
 class Pin: NSManagedObject {
 
-	convenience init(latitude: Double, longitude: Double, context: NSManagedObjectContext){
+	convenience init(context: NSManagedObjectContext){
 		
 		if let entity = NSEntityDescription.entityForName("Pin",
 		                                                  inManagedObjectContext: context){
 			self.init(entity: entity, insertIntoManagedObjectContext: context)
-			self.latitude = latitude;
-			self.longitude = longitude
 			
+			// properties must be set after initialization!
 		}
 		else {
 			fatalError("Unable to find Entity name!")

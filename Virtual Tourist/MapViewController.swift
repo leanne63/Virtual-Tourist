@@ -7,6 +7,7 @@
 //
 
 import MapKit
+import CoreData
 
 class MapViewController: UIViewController, MKMapViewDelegate {
 	
@@ -15,6 +16,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	private let hasLaunchedKey = "hasLaunched"
 	private let photoAlbumSegueID = "mapToPhotoAlbumSegue"
 	private let pinViewReuseIdentifier = "reusablePinView"
+	private let coreDataStack = (UIApplication.sharedApplication().delegate! as! AppDelegate).coreDataStack
 	
 
 	// MARK: - Properties (Outlets)
@@ -56,6 +58,12 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			annotation.coordinate = endCoordinate
 			
 			mapView.addAnnotation(annotation)
+			
+			// TODO: store the pin asynchronously
+			// now, store pin in db
+			var newPin = Pin(context: coreDataStack.managedObjectContext)
+			newPin += endCoordinate
+			coreDataStack.saveContext()
 		}
 	}
 	
