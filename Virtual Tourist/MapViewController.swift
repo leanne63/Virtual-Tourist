@@ -70,6 +70,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			// call Flickr API to retrieve photos
 			let flickrAPI = Flickr()
 			flickrAPI.getImages(newPin)
+			
+			// TODO: remove this code into notification of photos received (it's how to store photos as NSData)
+			// if let imageData = NSData(contentsOfURL: imageURL!)
 		}
 	}
 	
