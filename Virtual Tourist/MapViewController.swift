@@ -61,7 +61,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			
 			// TODO: store the pin asynchronously
 			// now, store pin in db
-			var newPin = Pin(context: coreDataStack.managedObjectContext)
+			var newPin = Pin(context: coreDataStack.mainManagedObjectContext)
 			// += is overridden for Pin and CLLocationCoordinate2D to add latitude and longitude in one step
 			newPin += endCoordinate
 			coreDataStack.saveContext()

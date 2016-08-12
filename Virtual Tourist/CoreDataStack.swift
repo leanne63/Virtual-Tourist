@@ -49,7 +49,7 @@ class CoreDataStack {
 		return coordinator
 	}()
 	
-	lazy var managedObjectContext: NSManagedObjectContext = {
+	lazy var mainManagedObjectContext: NSManagedObjectContext = {
 		// Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.) This property is optional since there are legitimate error conditions that could cause the creation of the context to fail.
 		let coordinator = self.persistentStoreCoordinator
 		var managedObjectContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
@@ -60,9 +60,9 @@ class CoreDataStack {
 	// MARK: - Core Data Saving support
 	
 	func saveContext () {
-		if managedObjectContext.hasChanges {
+		if mainManagedObjectContext.hasChanges {
 			do {
-				try managedObjectContext.save()
+				try mainManagedObjectContext.save()
 			} catch {
 				// Replace this implementation with code to handle the error appropriately.
 				// abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
