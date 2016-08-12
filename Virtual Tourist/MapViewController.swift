@@ -65,6 +65,11 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			// += is overridden for Pin and CLLocationCoordinate2D to add latitude and longitude in one step
 			newPin += endCoordinate
 			coreDataStack.saveContext()
+			
+			// TODO: run flickr call asynchronously
+			// call Flickr API to retrieve photos
+			let flickrAPI = Flickr()
+			flickrAPI.getImages(newPin)
 		}
 	}
 	
