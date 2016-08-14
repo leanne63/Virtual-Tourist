@@ -1,5 +1,4 @@
 //
-<<<<<<< HEAD
 //  Flickr.swift
 //  Virtual Tourist
 //

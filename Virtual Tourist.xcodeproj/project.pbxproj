@@ -28,8 +28,7 @@
 		D5DCB9BD1D5E46390083E26B /* Virtual_TouristTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9BB1D5E46390083E26B /* Virtual_TouristTests.swift */; };
 		D5DCB9C01D5E46750083E26B /* Flickr.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9BE1D5E46750083E26B /* Flickr.swift */; };
 		D5DCB9C11D5E46750083E26B /* FlickrConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9BF1D5E46750083E26B /* FlickrConstants.swift */; };
-		D5DCB9C31D5FC0620083E26B /* Extension_NSNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9C21D5FC0620083E26B /* Extension_NSNotificationCenter.swift */; };
->>>>>>> flickr-api
+		D5DCB9C51D60391C0083E26B /* Extension_NSNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9C41D60391C0083E26B /* Extension_NSNotificationCenter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,7 +75,7 @@
 		D5DCB9BB1D5E46390083E26B /* Virtual_TouristTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Virtual_TouristTests.swift; sourceTree = "<group>"; };
 		D5DCB9BE1D5E46750083E26B /* Flickr.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Flickr.swift; sourceTree = "<group>"; };
 		D5DCB9BF1D5E46750083E26B /* FlickrConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrConstants.swift; sourceTree = "<group>"; };
-		D5DCB9C21D5FC0620083E26B /* Extension_NSNotificationCenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Extension_NSNotificationCenter.swift; path = "../../On the Map/On the Map/Extension_NSNotificationCenter.swift"; sourceTree = "<group>"; };
+		D5DCB9C41D60391C0083E26B /* Extension_NSNotificationCenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension_NSNotificationCenter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,9 +107,9 @@
 		D59224401D46C0C8000D644B /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				D5DCB9C21D5FC0620083E26B /* Extension_NSNotificationCenter.swift */,
 				D59224411D46C119000D644B /* Extension_CLLocationCoordinate2D.swift */,
 				D5C321D41D5A7D2000677C11 /* Extension_Pin.swift */,
+				D5DCB9C41D60391C0083E26B /* Extension_NSNotificationCenter.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -355,7 +354,7 @@
 				D5C321A71D56B20600677C11 /* Photo+CoreDataProperties.swift in Sources */,
 				D5C321D51D5A7D2000677C11 /* Extension_Pin.swift in Sources */,
 				D59224421D46C119000D644B /* Extension_CLLocationCoordinate2D.swift in Sources */,
-				D5DCB9C31D5FC0620083E26B /* Extension_NSNotificationCenter.swift in Sources */,
+				D5DCB9C51D60391C0083E26B /* Extension_NSNotificationCenter.swift in Sources */,
 				D59C88F21D41591100620064 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
