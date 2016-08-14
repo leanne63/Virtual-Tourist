@@ -16,8 +16,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	private let hasLaunchedKey = "hasLaunched"
 	private let photoAlbumSegueID = "mapToPhotoAlbumSegue"
 	private let pinViewReuseIdentifier = "reusablePinView"
-	private let coreDataStack = (UIApplication.sharedApplication().delegate! as! AppDelegate).coreDataStack
-	
+
 
 	// MARK: - Properties (Outlets)
 	
@@ -59,14 +58,18 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			
 			mapView.addAnnotation(annotation)
 			
-			// TODO: store the pin asynchronously
 			// now, store pin in db
-			var newPin = Pin(context: coreDataStack.managedObjectContext)
+			var newPin = Pin(context: CoreDataStack.shared.privateManagedObjectContext)
+			// TODO: move operator overloads into their own file under Extensions
+			// += is overloaded for Pin and CLLocationCoordinate2D to add latitude and longitude in one step
+			// (see Extension_CLLocationCoordinate2D)
 			newPin += endCoordinate
-			coreDataStack.saveContext()
+
+			CoreDataStack.shared.saveContext()
 			
-			let flickr = Flickr()
-			flickr.getImages(newPin)
+			// call Flickr API to retrieve photos for this pin
+			let flickrAPI = Flickr()
+			flickrAPI.getImages(forPin: newPin)
 		}
 	}
 	

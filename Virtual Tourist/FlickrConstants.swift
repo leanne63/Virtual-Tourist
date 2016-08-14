@@ -8,13 +8,13 @@
 
 import Foundation
 
-struct Constants {
+struct FlickrConstants {
 	
 	// MARK: Flickr
-	struct Flickr {
-		static let APIScheme = "https"
-		static let APIHost = "api.flickr.com"
-		static let APIPath = "/services/rest"
+	struct API {
+		static let Scheme = "https"
+		static let Host = "api.flickr.com"
+		static let Path = "/services/rest"
 		
 		static let SearchBBoxHalfWidth = 1.0
 		static let SearchBBoxHalfHeight = 1.0
@@ -22,8 +22,22 @@ struct Constants {
 		static let SearchLonRange = (-180.0, 180.0)
 	}
 	
+	// MARK: Flickr Notification Keys
+	struct NotificationKeys {
+		static let MessageKey = "Message"
+		static let RequestURLKey = "RequestURL"
+		
+		static let NumPhotosToBeSavedKey = "NumPhotosToBeSaved"
+		static let NumPhotosSavedKey = "NumPhotosSaved"
+		
+		static let PhotoRetrievalDidFailNotification = "PhotoRetrievalDidFailNotification"
+		static let PhotosWillBeSavedNotification = "PhotosWillBeSavedNotification"
+		static let PhotosDidSaveNotification = "PhotosDidSaveNotification"
+
+	}
+	
 	// MARK: Flickr Parameter Keys
-	struct FlickrParameterKeys {
+	struct ParameterKeys {
 		static let Method = "method"
 		static let APIKey = "api_key"
 		static let GalleryID = "gallery_id"
@@ -34,10 +48,12 @@ struct Constants {
 		static let Text = "text"
 		static let BoundingBox = "bbox"
 		static let Page = "page"
+		static let PerPage = "per_page"
+		static let MinDateUploaded = "min_date_uploaded"
 	}
 	
 	// MARK: Flickr Parameter Values
-	struct FlickrParameterValues {
+	struct ParameterValues {
 		static let SearchMethod = "flickr.photos.search"
 		static let APIKey = "2742af0d60792bd8e65585339744f8b5"
 		static let ResponseFormat = "json"
@@ -46,10 +62,12 @@ struct Constants {
 		static let GalleryID = "5704-72157622566655097"
 		static let MediumURL = "url_m"
 		static let UseSafeSearch = "1"
+		static let NumPerPage = "10"
+		static let MinUploadDate = "2014/01/01"
 	}
 	
 	// MARK: Flickr Response Keys
-	struct FlickrResponseKeys {
+	struct ResponseKeys {
 		static let Status = "stat"
 		static let Photos = "photos"
 		static let Photo = "photo"
@@ -60,7 +78,7 @@ struct Constants {
 	}
 	
 	// MARK: Flickr Response Values
-	struct FlickrResponseValues {
+	struct ResponseValues {
 		static let OKStatus = "ok"
 	}
 }
