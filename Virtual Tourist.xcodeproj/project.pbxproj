@@ -23,12 +23,12 @@
 		D5C321A71D56B20600677C11 /* Photo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A31D56B20600677C11 /* Photo+CoreDataProperties.swift */; };
 		D5C321A81D56B20600677C11 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A41D56B20600677C11 /* Photo.swift */; };
 		D5C321D31D5A5E7000677C11 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321D21D5A5E7000677C11 /* PhotoAlbumViewController.swift */; };
-		D5C321D51D5A7D2000677C11 /* Extension_Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321D41D5A7D2000677C11 /* Extension_Pin.swift */; };
 		D5DCB9BC1D5E46390083E26B /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D5DCB9BA1D5E46390083E26B /* Info.plist */; };
 		D5DCB9BD1D5E46390083E26B /* Virtual_TouristTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9BB1D5E46390083E26B /* Virtual_TouristTests.swift */; };
 		D5DCB9C01D5E46750083E26B /* Flickr.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9BE1D5E46750083E26B /* Flickr.swift */; };
 		D5DCB9C11D5E46750083E26B /* FlickrConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9BF1D5E46750083E26B /* FlickrConstants.swift */; };
 		D5DCB9C51D60391C0083E26B /* Extension_NSNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9C41D60391C0083E26B /* Extension_NSNotificationCenter.swift */; };
+		D5DCB9C71D623F740083E26B /* OperatorOverloads.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9C61D623F740083E26B /* OperatorOverloads.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,12 +70,12 @@
 		D5C321A31D56B20600677C11 /* Photo+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Photo+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		D5C321A41D56B20600677C11 /* Photo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
 		D5C321D21D5A5E7000677C11 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
-		D5C321D41D5A7D2000677C11 /* Extension_Pin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension_Pin.swift; sourceTree = "<group>"; };
 		D5DCB9BA1D5E46390083E26B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D5DCB9BB1D5E46390083E26B /* Virtual_TouristTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Virtual_TouristTests.swift; sourceTree = "<group>"; };
 		D5DCB9BE1D5E46750083E26B /* Flickr.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Flickr.swift; sourceTree = "<group>"; };
 		D5DCB9BF1D5E46750083E26B /* FlickrConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrConstants.swift; sourceTree = "<group>"; };
 		D5DCB9C41D60391C0083E26B /* Extension_NSNotificationCenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension_NSNotificationCenter.swift; sourceTree = "<group>"; };
+		D5DCB9C61D623F740083E26B /* OperatorOverloads.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperatorOverloads.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,8 +108,8 @@
 			isa = PBXGroup;
 			children = (
 				D59224411D46C119000D644B /* Extension_CLLocationCoordinate2D.swift */,
-				D5C321D41D5A7D2000677C11 /* Extension_Pin.swift */,
 				D5DCB9C41D60391C0083E26B /* Extension_NSNotificationCenter.swift */,
+				D5DCB9C61D623F740083E26B /* OperatorOverloads.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -352,8 +352,8 @@
 				D5C321A51D56B20600677C11 /* Pin+CoreDataProperties.swift in Sources */,
 				D52938B21D48103C003CCD2A /* CoreDataStack.swift in Sources */,
 				D5C321A71D56B20600677C11 /* Photo+CoreDataProperties.swift in Sources */,
-				D5C321D51D5A7D2000677C11 /* Extension_Pin.swift in Sources */,
 				D59224421D46C119000D644B /* Extension_CLLocationCoordinate2D.swift in Sources */,
+				D5DCB9C71D623F740083E26B /* OperatorOverloads.swift in Sources */,
 				D5DCB9C51D60391C0083E26B /* Extension_NSNotificationCenter.swift in Sources */,
 				D59C88F21D41591100620064 /* AppDelegate.swift in Sources */,
 			);
