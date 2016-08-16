@@ -132,9 +132,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	/// Loads pins from database.
 	private func loadMapData() {
 		
-		// TODO: remove this if not needed
-		//mapView.removeAnnotations(mapView.annotations)
-		
 		let request = NSFetchRequest(entityName:"Pin")
 		guard let pins = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Pin] else {
 			return
@@ -144,21 +141,17 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		
 		for pin in pins {
 			
-			// get the appropriate information
 			let lat: Double = CLLocationDegrees(pin.latitude)
 			let long: Double = CLLocationDegrees(pin.longitude)
 			
-			// The lat and long are used to create a CLLocationCoordinates2D instance.
 			let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
 			
 			let annotation = MKPointAnnotation()
 			annotation.coordinate = coordinate
 			
-			// add to to our array of annotations
 			annotations.append(annotation)
 		}
 		
-		// When the array is complete, we add the annotations to the map.
 		mapView.addAnnotations(annotations)
 	}
 
