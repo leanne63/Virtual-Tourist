@@ -44,6 +44,35 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		loadMapData()
 	}
 	
+	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+		
+		guard let segueId = segue.identifier else {
+			return
+		}
+		
+		// if we're going to the photo album, pass the Pin object whose selection initiated this segue call
+		if segueId == photoAlbumSegueID {
+
+			let pin = sender as! Pin
+			
+			let request = NSFetchRequest(entityName: "Photo")
+			let predicate = NSPredicate(format: "pin = %@", pin)
+			request.predicate = predicate
+			
+			guard let photos = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
+				print("An error occurred while retrieving photos for selected pin!")
+				return
+			}
+			
+			let controller = segue.destinationViewController as! PhotoAlbumViewController
+			controller.fetchRequest = request
+			controller.pin = pin
+			controller.photos = photos
+			
+			print("IN \(#function)\tnumPhotos: \(photos.count)")
+		}
+	}
+	
 	
 	// MARK: - Actions
 
@@ -84,7 +113,19 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		
 		storeCurrentMapRegion()
 		
-		performSegueWithIdentifier(photoAlbumSegueID, sender: self)
+		/*
+			to instantiate a Pin object to pass on the segue (but NOT re-add it to the database), we need to
+				create an entity in the context, but then pass 'nil' so entity isn't INSERTED into the context
+		*/
+		guard let entityForPin = NSEntityDescription.entityForName("Pin",
+		                                                           inManagedObjectContext: CoreDataStack.shared.mainManagedObjectContext) else {
+			print("Couldn't create pin entity for segue!")
+			return
+		}
+		var selectedPin = Pin(entity: entityForPin, insertIntoManagedObjectContext: nil)
+		selectedPin += view.annotation!.coordinate
+		
+		performSegueWithIdentifier(photoAlbumSegueID, sender: selectedPin)
 	}
 	
 	
