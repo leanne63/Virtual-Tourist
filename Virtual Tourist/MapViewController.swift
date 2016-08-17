@@ -56,7 +56,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			let pin = sender as! Pin
 			
 			let request = NSFetchRequest(entityName: "Photo")
-			let predicate = NSPredicate(format: "pin = %@", argumentArray: [pin])
+			let predicate = NSPredicate(format: "pin == %@", pin)
 			request.predicate = predicate
 			
 			guard let photos = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
