@@ -56,10 +56,11 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			let pin = sender as! Pin
 			
 			let request = NSFetchRequest(entityName: "Photo")
-			let predicate = NSPredicate(format: "pin = %@", pin)
+			let predicate = NSPredicate(format: "pin = %@", argumentArray: [pin])
 			request.predicate = predicate
 			
-			guard let photos = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
+			guard let photos = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
+				
 				print("An error occurred while retrieving photos for selected pin!")
 				return
 			}
@@ -68,8 +69,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			controller.fetchRequest = request
 			controller.pin = pin
 			controller.photos = photos
-			
-			print("IN \(#function)\tnumPhotos: \(photos.count)")
 		}
 	}
 	
@@ -91,9 +90,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			
 			// now, store pin in db
 			var newPin = Pin(context: CoreDataStack.shared.privateManagedObjectContext)
-			// TODO: move operator overloads into their own file under Extensions
+
 			// += is overloaded for Pin and CLLocationCoordinate2D to add latitude and longitude in one step
-			// (see Extension_CLLocationCoordinate2D)
+			// (see OperatorOverloads.swift)
 			newPin += endCoordinate
 
 			CoreDataStack.shared.saveContext()
@@ -113,19 +112,21 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		
 		storeCurrentMapRegion()
 		
-		/*
-			to instantiate a Pin object to pass on the segue (but NOT re-add it to the database), we need to
-				create an entity in the context, but then pass 'nil' so entity isn't INSERTED into the context
-		*/
-		guard let entityForPin = NSEntityDescription.entityForName("Pin",
-		                                                           inManagedObjectContext: CoreDataStack.shared.mainManagedObjectContext) else {
-			print("Couldn't create pin entity for segue!")
-			return
-		}
-		var selectedPin = Pin(entity: entityForPin, insertIntoManagedObjectContext: nil)
-		selectedPin += view.annotation!.coordinate
+		let pinLat = view.annotation!.coordinate.latitude
+		let pinLon = view.annotation!.coordinate.longitude
 		
-		performSegueWithIdentifier(photoAlbumSegueID, sender: selectedPin)
+		let request = NSFetchRequest(entityName:"Pin")
+		let predicate = NSPredicate(format: "latitude == %lf && longitude == %lf", pinLat, pinLon)
+		request.predicate = predicate
+		
+		guard let pinsFound =
+			try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Pin] where pinsFound.count == 1 else {
+				
+				print("Unable to locate selected pin in database!")
+				return
+		}
+		
+		performSegueWithIdentifier(photoAlbumSegueID, sender: pinsFound[0])
 	}
 	
 	
@@ -175,6 +176,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		
 		let request = NSFetchRequest(entityName:"Pin")
 		guard let pins = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Pin] else {
+			
+			print("Unable to retrieve pins from database!")
 			return
 		}
 		
