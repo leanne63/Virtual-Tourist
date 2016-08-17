@@ -14,7 +14,7 @@ class PhotoAlbumViewController: UICollectionViewController {
 	// MARK: - Constants
 	
 	private let reuseIdentifier = "reusableCell"
-	
+	private let sectionInsets = UIEdgeInsets(top: 50.0, left: 20.0, bottom: 50.0, right: 20.0)
 	
 	// MARK: - Properties
 	
@@ -30,9 +30,10 @@ class PhotoAlbumViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 		
-		numPhotosToDisplay = photos.count
+		subscribeToNotifications()
 		
-		print("numPhotosFromDB: \(numPhotosToDisplay)")
+		// note: to test zero photos, simply delete photos for this pin from the database
+		numPhotosToDisplay = photos.count
 		
 		if numPhotosToDisplay == 0 {
 			// no photos were in DB, so call Flickr API to retrieve photos for this pin
@@ -61,7 +62,11 @@ class PhotoAlbumViewController: UICollectionViewController {
     
 		let cellImageView = cell.viewWithTag(1) as! UIImageView
 		
-		let imageData: NSData = photos[indexPath.row].photo!
+		var imageData = NSData()
+		
+		if photos.count > 0 {
+			imageData = photos[indexPath.row].photo!
+		}
 		
 		cellImageView.image = UIImage(data: imageData)
 		
@@ -93,7 +98,7 @@ class PhotoAlbumViewController: UICollectionViewController {
     */
 	
 	
-	// MARK: - Observer Handling
+	// MARK: - Observer-Related Methods
 	
 	private func subscribeToNotifications() {
 		
@@ -106,10 +111,12 @@ class PhotoAlbumViewController: UICollectionViewController {
 	
 	func photosWillBeSaved(notification: NSNotification) {
 		
-		var numPhotosFromRequest = 0
 		if let userInfo = notification.userInfo as? [String: Int] {
-			numPhotosFromRequest = userInfo[FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey]!
+			numPhotosToDisplay = userInfo[FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey]!
 		}
+		
+		// TODO: placeholders for images?
+		collectionView!.reloadData()
 	}
 	
 	
@@ -120,11 +127,13 @@ class PhotoAlbumViewController: UICollectionViewController {
 	private func loadPhotosForPin() {
 		
 		// we already have the fetch request, so go ahead and pull the photos for this request
-		guard let photos = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(fetchRequest) as! [Photo] else {
+		guard let photosFromDB = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(fetchRequest) as! [Photo] else {
 			
 			print("An error occurred while retrieving photos for selected pin!")
 			return
 		}
+		
+		photos = photosFromDB
 	}
 
 

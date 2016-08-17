@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--Virtual Tourist-->
@@ -52,35 +53,38 @@
         <scene sceneID="RFy-aj-cWV">
             <objects>
                 <collectionViewController id="h8R-oo-PGq" userLabel="Photo Album View Controller" customClass="PhotoAlbumViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
-                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="Fhk-ar-HdQ">
+                    <collectionView key="view" clipsSubviews="YES" contentMode="scaleToFill" dataMode="prototypes" id="Fhk-ar-HdQ">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Sqc-fB-PEB">
-                            <size key="itemSize" width="50" height="50"/>
+                            <size key="itemSize" width="121" height="120"/>
                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
                             <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                         </collectionViewFlowLayout>
                         <cells>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="reusableCell" id="ajp-8z-xpd">
-                                <rect key="frame" x="0.0" y="64" width="50" height="50"/>
+                                <rect key="frame" x="0.0" y="64" width="120" height="120"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Di1-kn-6wc">
-                                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                        <imageView tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Di1-kn-6wc">
+                                            <rect key="frame" x="1" y="1" width="118" height="118"/>
                                         </imageView>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </view>
+                                <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstItem="Di1-kn-6wc" firstAttribute="centerY" secondItem="ajp-8z-xpd" secondAttribute="centerY" id="Qxn-Co-Uyu"/>
-                                    <constraint firstItem="Di1-kn-6wc" firstAttribute="height" secondItem="ajp-8z-xpd" secondAttribute="height" id="TUe-YV-NLg"/>
-                                    <constraint firstItem="Di1-kn-6wc" firstAttribute="width" secondItem="ajp-8z-xpd" secondAttribute="width" id="nri-AU-6jI"/>
+                                    <constraint firstItem="Di1-kn-6wc" firstAttribute="height" secondItem="ajp-8z-xpd" secondAttribute="height" multiplier="98%" id="TUe-YV-NLg"/>
+                                    <constraint firstItem="Di1-kn-6wc" firstAttribute="width" secondItem="ajp-8z-xpd" secondAttribute="width" multiplier="98%" id="nri-AU-6jI"/>
                                     <constraint firstItem="Di1-kn-6wc" firstAttribute="centerX" secondItem="ajp-8z-xpd" secondAttribute="centerX" id="u12-tC-zi5"/>
                                 </constraints>
+                                <size key="customSize" width="120" height="120"/>
                             </collectionViewCell>
                         </cells>
                         <connections>
