@@ -22,24 +22,29 @@ class PhotoAlbumViewController: UICollectionViewController {
 	var photos: [Photo]!
 	var fetchRequest: NSFetchRequest!
 	
+	var numPhotosToDisplay: Int!
+	
 	
 	// MARK: - Overrides (Lifecycle)
 	
     override func viewDidLoad() {
         super.viewDidLoad()
 		
-		let numPhotosFromDB = photos.count
+		numPhotosToDisplay = photos.count
 		
-		print("numPhotosFromDB: \(numPhotosFromDB)")
+		print("numPhotosFromDB: \(numPhotosToDisplay)")
 		
-//		if numPhotosFromDB > 0 {
-//			collectionView!.reloadData()
-//		}
-//		else {
-//			// TODO: no photos were in DB, so attempt to retrieve photos directly from flickr
-//		}
-		
+		if numPhotosToDisplay == 0 {
+			// no photos were in DB, so call Flickr API to retrieve photos for this pin
+			let flickrAPI = Flickr()
+			flickrAPI.getImages(forPin: pin)
+		}
     }
+	
+	deinit {
+		// unsubscribe us from all notifications we're observing!
+		NSNotificationCenter.defaultCenter().removeObserver(self)
+	}
 
 
     // MARK: UICollectionViewDataSource
@@ -48,7 +53,7 @@ class PhotoAlbumViewController: UICollectionViewController {
 	
     override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
-		return photos.count
+		return numPhotosToDisplay
     }
 
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
@@ -88,32 +93,38 @@ class PhotoAlbumViewController: UICollectionViewController {
     */
 	
 	
+	// MARK: - Observer Handling
+	
+	private func subscribeToNotifications() {
+		
+		NSNotificationCenter.defaultCenter().addObserver(self,
+		                                                 selector: #selector(photosWillBeSaved(_:)),
+		                                                 name: FlickrConstants.NotificationKeys.PhotosWillBeSavedNotification,
+		                                                 object: nil)
+	}
+	
+	
+	func photosWillBeSaved(notification: NSNotification) {
+		
+		var numPhotosFromRequest = 0
+		if let userInfo = notification.userInfo as? [String: Int] {
+			numPhotosFromRequest = userInfo[FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey]!
+		}
+	}
+	
+	
 	// MARK: - Private Functions
 	
-	/// Loads pins from database.
+	// TODO: use this function for retrieving photos upon refresh
+	/// Loads photos from database.
 	private func loadPhotosForPin() {
 		
-		let request = NSFetchRequest(entityName:"Pin")
-		guard let photos = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
+		// we already have the fetch request, so go ahead and pull the photos for this request
+		guard let photos = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(fetchRequest) as! [Photo] else {
+			
+			print("An error occurred while retrieving photos for selected pin!")
 			return
 		}
-		print("photos:\n\(photos)")
-//		var annotations = [MKPointAnnotation]()
-//		
-//		for pin in pins {
-//			
-//			let lat: Double = CLLocationDegrees(pin.latitude)
-//			let long: Double = CLLocationDegrees(pin.longitude)
-//			
-//			let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
-//			
-//			let annotation = MKPointAnnotation()
-//			annotation.coordinate = coordinate
-//			
-//			annotations.append(annotation)
-//		}
-//		
-//		mapView.addAnnotations(annotations)
 	}
 
 
