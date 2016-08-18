@@ -29,6 +29,7 @@
 		D5DCB9C11D5E46750083E26B /* FlickrConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9BF1D5E46750083E26B /* FlickrConstants.swift */; };
 		D5DCB9C51D60391C0083E26B /* Extension_NSNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9C41D60391C0083E26B /* Extension_NSNotificationCenter.swift */; };
 		D5DCB9C71D623F740083E26B /* OperatorOverloads.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9C61D623F740083E26B /* OperatorOverloads.swift */; };
+		D5DCB9C91D663D220083E26B /* Extension_SCNetworkReachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9C81D663D220083E26B /* Extension_SCNetworkReachability.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +77,7 @@
 		D5DCB9BF1D5E46750083E26B /* FlickrConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrConstants.swift; sourceTree = "<group>"; };
 		D5DCB9C41D60391C0083E26B /* Extension_NSNotificationCenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension_NSNotificationCenter.swift; sourceTree = "<group>"; };
 		D5DCB9C61D623F740083E26B /* OperatorOverloads.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperatorOverloads.swift; sourceTree = "<group>"; };
+		D5DCB9C81D663D220083E26B /* Extension_SCNetworkReachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension_SCNetworkReachability.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				D59224411D46C119000D644B /* Extension_CLLocationCoordinate2D.swift */,
 				D5DCB9C41D60391C0083E26B /* Extension_NSNotificationCenter.swift */,
 				D5DCB9C61D623F740083E26B /* OperatorOverloads.swift */,
+				D5DCB9C81D663D220083E26B /* Extension_SCNetworkReachability.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -354,6 +357,7 @@
 				D5C321A71D56B20600677C11 /* Photo+CoreDataProperties.swift in Sources */,
 				D59224421D46C119000D644B /* Extension_CLLocationCoordinate2D.swift in Sources */,
 				D5DCB9C71D623F740083E26B /* OperatorOverloads.swift in Sources */,
+				D5DCB9C91D663D220083E26B /* Extension_SCNetworkReachability.swift in Sources */,
 				D5DCB9C51D60391C0083E26B /* Extension_NSNotificationCenter.swift in Sources */,
 				D59C88F21D41591100620064 /* AppDelegate.swift in Sources */,
 			);

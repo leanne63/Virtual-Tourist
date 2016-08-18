@@ -7,7 +7,7 @@
 //
 
 import MapKit
-
+import SystemConfiguration
 
 /// Provides access to the Flickr API
 class Flickr {
@@ -100,6 +100,14 @@ class Flickr {
 		
 		let requestURL = flickrURLFromParameters(methodParameters)
 		let request = NSURLRequest(URL: requestURL)
+
+		let fakeURL = NSURL(string: FlickrConstants.Network.FakeURLForAccessTest)
+		guard SCNetworkReachability.checkIfNetworkAvailable(fakeURL!) == true else {
+			let userInfo = [FlickrConstants.NotificationKeys.MessageKey: FlickrConstants.Network.NoAccessMessage]
+			NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotoRetrievalDidFailNotification, object: nil, userInfo: userInfo)
+			return
+		}
+		
 		let task = NSURLSession.sharedSession().dataTaskWithRequest(request) {
 			(data, response, error) in
 			
@@ -182,6 +190,13 @@ class Flickr {
 		// and make the request
 		let requestURL = flickrURLFromParameters(methodParameters)
 		let request = NSURLRequest(URL: requestURL)
+		
+		let fakeURL = NSURL(string: FlickrConstants.Network.FakeURLForAccessTest)
+		guard SCNetworkReachability.checkIfNetworkAvailable(fakeURL!) == true else {
+			let userInfo = [FlickrConstants.NotificationKeys.MessageKey: FlickrConstants.Network.NoAccessMessage]
+			NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotoRetrievalDidFailNotification, object: nil, userInfo: userInfo)
+			return
+		}
 		let task = NSURLSession.sharedSession().dataTaskWithRequest(request) {
 			(data, response, error) in
 			
@@ -231,7 +246,7 @@ class Flickr {
 			
 			// notify observers of photo count
 			userInfo = [FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey : photoArray.count]
-			NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotosWillBeSavedNotification, object: nil, userInfo: userInfo)
+			NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotosWillSaveNotification, object: nil, userInfo: userInfo)
 
 			
 			// if no photos were retrieved, we don't need to save anything, so just return
@@ -261,15 +276,21 @@ class Flickr {
 				numPhotosSaved += 1
 			}
 			
-			// save the context
-			CoreDataStack.shared.saveContext()
-			
 			// TODO: remove test print statement
 			print("***** \(numPhotosSaved) PHOTOS WERE SAVED *****")
 			
-			// notify observers that we're done!
-			userInfo = [FlickrConstants.NotificationKeys.NumPhotosSavedKey: numPhotosSaved]
-			NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotosDidSaveNotification, object: nil, userInfo: userInfo)
+			if numPhotosSaved > 0 {
+				// save the context
+				CoreDataStack.shared.saveContext()
+				
+				// notify observers that we're done!
+				userInfo = [FlickrConstants.NotificationKeys.NumPhotosSavedKey: numPhotosSaved]
+				NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotosDidSaveNotification, object: nil, userInfo: userInfo)
+			}
+			else {
+				// notify observers that we're done, but received no photos
+				NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.NoPhotosDidSaveNotification, object: nil, userInfo: nil)
+			}
 		}
 		
 		task.resume()

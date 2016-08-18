@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class PhotoAlbumViewController: UICollectionViewController {
+class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
 
 	// MARK: - Constants
 	
@@ -23,6 +23,11 @@ class PhotoAlbumViewController: UICollectionViewController {
 	var fetchRequest: NSFetchRequest!
 	
 	var numPhotosToDisplay: Int!
+	
+	
+	// MARK: - Outlets
+	
+	@IBOutlet weak var collectionView: UICollectionView!
 	
 	
 	// MARK: - Overrides (Lifecycle)
@@ -52,12 +57,12 @@ class PhotoAlbumViewController: UICollectionViewController {
 
 	// using default number of sections (1), so no override for numberOfSections
 	
-    override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
 		return numPhotosToDisplay
     }
 
-    override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+	func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath)
     
 		let cellImageView = cell.viewWithTag(1) as! UIImageView
@@ -108,12 +113,17 @@ class PhotoAlbumViewController: UICollectionViewController {
 		
 		NSNotificationCenter.defaultCenter().addObserver(self,
 		                                                 selector: #selector(photosWillBeSaved(_:)),
-		                                                 name: FlickrConstants.NotificationKeys.PhotosWillBeSavedNotification,
+		                                                 name: FlickrConstants.NotificationKeys.PhotosWillSaveNotification,
 		                                                 object: nil)
 
 		NSNotificationCenter.defaultCenter().addObserver(self,
 		                                                 selector: #selector(photosDidSave(_:)),
 		                                                 name: FlickrConstants.NotificationKeys.PhotosDidSaveNotification,
+		                                                 object: nil)
+		
+		NSNotificationCenter.defaultCenter().addObserver(self,
+		                                                 selector: #selector(noPhotosDidSave(_:)),
+		                                                 name: FlickrConstants.NotificationKeys.NoPhotosDidSaveNotification,
 		                                                 object: nil)
 	}
 	
@@ -147,6 +157,10 @@ class PhotoAlbumViewController: UICollectionViewController {
 			let indexPath = NSIndexPath(forItem: indexValue, inSection: 0)
 			collectionView!.reloadItemsAtIndexPaths([indexPath])
 		}
+	}
+	
+	func noPhotosDidSave(notification: NSNotification) {
+		// TODO: what do we want to do if no photos were saved???
 	}
 	
 	

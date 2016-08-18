@@ -10,6 +10,15 @@ import Foundation
 
 struct FlickrConstants {
 	
+	// MARK: Network
+	struct Network {
+		// NSURL will take non-URL, and SCNetworkReachability doesn't actually access URL,
+		//	so using plain text to test for network availability (since we don't know the
+		//	actual URL/host used by CLGeocoder)
+		static let FakeURLForAccessTest = "fakeURLforAccessTest"
+		static let NoAccessMessage = "Network Unavailable"
+	}
+	
 	// MARK: Flickr
 	struct API {
 		static let Scheme = "https"
@@ -31,9 +40,9 @@ struct FlickrConstants {
 		static let NumPhotosSavedKey = "NumPhotosSaved"
 		
 		static let PhotoRetrievalDidFailNotification = "PhotoRetrievalDidFailNotification"
-		static let PhotosWillBeSavedNotification = "PhotosWillBeSavedNotification"
+		static let PhotosWillSaveNotification = "PhotosWillSaveNotification"
 		static let PhotosDidSaveNotification = "PhotosDidSaveNotification"
-
+		static let NoPhotosDidSaveNotification = "NoPhotosDidSaveNotification"
 	}
 	
 	// MARK: Flickr Parameter Keys
