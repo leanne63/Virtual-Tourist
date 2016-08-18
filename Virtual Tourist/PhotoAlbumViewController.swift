@@ -14,7 +14,7 @@ class PhotoAlbumViewController: UICollectionViewController {
 	// MARK: - Constants
 	
 	private let reuseIdentifier = "reusableCell"
-	private let sectionInsets = UIEdgeInsets(top: 50.0, left: 20.0, bottom: 50.0, right: 20.0)
+	
 	
 	// MARK: - Properties
 	
@@ -48,7 +48,7 @@ class PhotoAlbumViewController: UICollectionViewController {
 	}
 
 
-    // MARK: UICollectionViewDataSource
+    // MARK: - UICollectionViewDataSource
 
 	// using default number of sections (1), so no override for numberOfSections
 	
@@ -61,6 +61,10 @@ class PhotoAlbumViewController: UICollectionViewController {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath)
     
 		let cellImageView = cell.viewWithTag(1) as! UIImageView
+		
+		let activityIndicator = UIActivityIndicatorView()
+		activityIndicator.activityIndicatorViewStyle = .WhiteLarge
+		activityIndicator.hidesWhenStopped = true
 		
 		var imageData = NSData()
 		
@@ -106,6 +110,11 @@ class PhotoAlbumViewController: UICollectionViewController {
 		                                                 selector: #selector(photosWillBeSaved(_:)),
 		                                                 name: FlickrConstants.NotificationKeys.PhotosWillBeSavedNotification,
 		                                                 object: nil)
+
+		NSNotificationCenter.defaultCenter().addObserver(self,
+		                                                 selector: #selector(photosDidSave(_:)),
+		                                                 name: FlickrConstants.NotificationKeys.PhotosDidSaveNotification,
+		                                                 object: nil)
 	}
 	
 	
@@ -115,8 +124,29 @@ class PhotoAlbumViewController: UICollectionViewController {
 			numPhotosToDisplay = userInfo[FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey]!
 		}
 		
-		// TODO: placeholders for images?
 		collectionView!.reloadData()
+	}
+	
+	func photosDidSave(notification: NSNotification) {
+		print(#function)
+		
+		guard let photosFromDB = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(fetchRequest) as! [Photo] else {
+			
+			print("An error occurred while retrieving photos for selected pin!")
+			return
+		}
+		
+		if let userInfo = notification.userInfo as? [String: Int] {
+			numPhotosToDisplay = userInfo[FlickrConstants.NotificationKeys.NumPhotosSavedKey]!
+		}
+		
+		photos = photosFromDB
+		
+		let maxIndex = numPhotosToDisplay - 1
+		for indexValue in 0...maxIndex {
+			let indexPath = NSIndexPath(forItem: indexValue, inSection: 0)
+			collectionView!.reloadItemsAtIndexPaths([indexPath])
+		}
 	}
 	
 	
