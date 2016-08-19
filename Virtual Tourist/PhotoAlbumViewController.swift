@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
+class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
 
 	// MARK: - Constants
 	
@@ -34,6 +34,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
 	
     override func viewDidLoad() {
         super.viewDidLoad()
+		
+		collectionView!.delegate = self
 		
 		subscribeToNotifications()
 		
@@ -134,33 +136,65 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource {
 			numPhotosToDisplay = userInfo[FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey]!
 		}
 		
+		print("IN \(#function) - numPhotosToDisplay: \(numPhotosToDisplay)")
+		
 		collectionView!.reloadData()
 	}
 	
 	func photosDidSave(notification: NSNotification) {
-		print(#function)
-		
-		guard let photosFromDB = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(fetchRequest) as! [Photo] else {
-			
-			print("An error occurred while retrieving photos for selected pin!")
-			return
-		}
 		
 		if let userInfo = notification.userInfo as? [String: Int] {
 			numPhotosToDisplay = userInfo[FlickrConstants.NotificationKeys.NumPhotosSavedKey]!
 		}
 		
-		photos = photosFromDB
-		
-		let maxIndex = numPhotosToDisplay - 1
-		for indexValue in 0...maxIndex {
-			let indexPath = NSIndexPath(forItem: indexValue, inSection: 0)
-			collectionView!.reloadItemsAtIndexPaths([indexPath])
+		var photosRemaining: Int = numPhotosToDisplay
+		var currentPhoto: Int = 0
+		while photosRemaining > 0 {
+			guard let photosFromDB = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(fetchRequest) as! [Photo] else {
+				continue
+			}
+			
+			let numPhotosAvailable = photosFromDB.count
+			if numPhotosAvailable > 0 {
+				photos = photosFromDB
+				
+				collectionView.reloadData()
+				
+				let maxIndex = numPhotosAvailable - 1
+				for indexValue in currentPhoto...maxIndex {
+					let indexPath = NSIndexPath(forItem: indexValue, inSection: 0)
+					if collectionView!.numberOfItemsInSection(0) == currentPhoto {
+						collectionView!.insertItemsAtIndexPaths([indexPath])
+					}
+					else {
+						collectionView!.reloadItemsAtIndexPaths([indexPath])
+					}
+					currentPhoto += 1
+					photosRemaining -= 1
+				}
+			}
 		}
+		
+//		print("IN \(#function)\numPhotosToDisplay: \(numPhotosToDisplay)")
+//		
+//		guard let photosFromDB = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(fetchRequest) as! [Photo] else {
+//			
+//			print("An error occurred while retrieving photos for selected pin!")
+//			return
+//		}
+//		
+//		photos = photosFromDB
+//		
+//		let maxIndex = numPhotosToDisplay - 1
+//		for indexValue in 0...maxIndex {
+//			let indexPath = NSIndexPath(forItem: indexValue, inSection: 0)
+//			collectionView!.reloadItemsAtIndexPaths([indexPath])
+//		}
 	}
 	
 	func noPhotosDidSave(notification: NSNotification) {
 		// TODO: what do we want to do if no photos were saved???
+		print("No photos were saved.")
 	}
 	
 	

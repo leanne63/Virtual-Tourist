@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--Virtual Tourist-->
@@ -60,10 +61,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XFb-kq-8F6">
-                                <rect key="frame" x="0.0" y="570" width="600" height="30"/>
-                                <state key="normal" title="Button"/>
-                            </button>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="hid-XI-2HP">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="570"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="BN4-ir-6OX">
@@ -79,24 +76,40 @@
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="4M9-hC-2uD">
+                                                    <rect key="frame" x="0.0" y="1" width="50" height="49"/>
+                                                </imageView>
+                                            </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </view>
+                                        <constraints>
+                                            <constraint firstItem="4M9-hC-2uD" firstAttribute="centerX" secondItem="ptz-CC-hPY" secondAttribute="centerX" id="a4U-Rs-uAb"/>
+                                            <constraint firstItem="4M9-hC-2uD" firstAttribute="height" secondItem="ptz-CC-hPY" secondAttribute="height" multiplier="98%" id="eBk-8P-uAA"/>
+                                            <constraint firstItem="4M9-hC-2uD" firstAttribute="centerY" secondItem="ptz-CC-hPY" secondAttribute="centerY" id="k2Y-d5-6aZ"/>
+                                            <constraint firstItem="4M9-hC-2uD" firstAttribute="width" secondItem="ptz-CC-hPY" secondAttribute="width" id="rZk-D0-D7C"/>
+                                        </constraints>
                                     </collectionViewCell>
                                 </cells>
                                 <connections>
+                                    <outlet property="dataSource" destination="y08-jC-lpc" id="RZs-uj-ohO"/>
                                     <outlet property="delegate" destination="y08-jC-lpc" id="9Lb-G7-doY"/>
                                 </connections>
                             </collectionView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XFb-kq-8F6">
+                                <rect key="frame" x="0.0" y="570" width="600" height="30"/>
+                                <state key="normal" title="Button"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="hid-XI-2HP" firstAttribute="bottom" secondItem="XFb-kq-8F6" secondAttribute="top" id="8Yc-C4-Diu"/>
                             <constraint firstItem="hid-XI-2HP" firstAttribute="leading" secondItem="xw6-bF-ZQD" secondAttribute="leading" id="Fma-KD-A4E"/>
-                            <constraint firstItem="XFb-kq-8F6" firstAttribute="bottom" secondItem="Uad-9e-FoW" secondAttribute="top" id="KdQ-Jo-MEm"/>
                             <constraint firstItem="hid-XI-2HP" firstAttribute="top" secondItem="xw6-bF-ZQD" secondAttribute="top" id="ORc-fQ-Wo0"/>
                             <constraint firstItem="XFb-kq-8F6" firstAttribute="width" secondItem="xw6-bF-ZQD" secondAttribute="width" id="VDH-Pz-Ap2"/>
                             <constraint firstItem="hid-XI-2HP" firstAttribute="trailing" secondItem="xw6-bF-ZQD" secondAttribute="trailing" id="cTy-fs-vvW"/>
                             <constraint firstItem="XFb-kq-8F6" firstAttribute="centerX" secondItem="xw6-bF-ZQD" secondAttribute="centerX" id="fNy-E8-Qyz"/>
+                            <constraint firstItem="XFb-kq-8F6" firstAttribute="bottom" secondItem="Uad-9e-FoW" secondAttribute="top" id="mQZ-lq-Dgm"/>
                         </constraints>
                     </view>
                     <connections>
