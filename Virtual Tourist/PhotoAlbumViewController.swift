@@ -129,7 +129,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		                                                 object: nil)
 	}
 	
-	
 	func photosWillBeSaved(notification: NSNotification) {
 		
 		if let userInfo = notification.userInfo as? [String: Int] {
@@ -174,22 +173,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 				}
 			}
 		}
-		
-//		print("IN \(#function)\numPhotosToDisplay: \(numPhotosToDisplay)")
-//		
-//		guard let photosFromDB = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(fetchRequest) as! [Photo] else {
-//			
-//			print("An error occurred while retrieving photos for selected pin!")
-//			return
-//		}
-//		
-//		photos = photosFromDB
-//		
-//		let maxIndex = numPhotosToDisplay - 1
-//		for indexValue in 0...maxIndex {
-//			let indexPath = NSIndexPath(forItem: indexValue, inSection: 0)
-//			collectionView!.reloadItemsAtIndexPaths([indexPath])
-//		}
 	}
 	
 	func noPhotosDidSave(notification: NSNotification) {
