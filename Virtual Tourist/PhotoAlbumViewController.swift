@@ -133,8 +133,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 			numPhotosToDisplay = userInfo[FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey]!
 		}
 		
-		print("IN \(#function) - numPhotosToDisplay: \(numPhotosToDisplay)")
-		
 		collectionView!.reloadData()
 	}
 	
@@ -214,6 +212,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		}
 		
 		CoreDataStack.shared.saveContext()
+		
+		// remove photos from our array, too (so it won't contain data that no longer exists in the database)
+		photos.removeAll()
 	}
 	
 	
