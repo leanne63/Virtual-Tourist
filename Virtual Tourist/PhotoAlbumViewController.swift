@@ -43,9 +43,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		numPhotosToDisplay = photos.count
 		
 		if numPhotosToDisplay == 0 {
-			// no photos were in DB, so call Flickr API to retrieve photos for this pin
-			let flickrAPI = Flickr()
-			flickrAPI.getImages(forPin: pin)
+			callFlickrForNewPhotos()
 		}
     }
 	
@@ -181,21 +179,42 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	}
 	
 	
+	// MARK: - Actions
+	
+	@IBAction func retrieveNewPhotos(sender: UIButton) {
+		
+		deleteExistingPhotosForCurrentPin()
+		
+		callFlickrForNewPhotos()
+	}
+	
+	
 	// MARK: - Private Functions
 	
-	// TODO: use this function for retrieving photos upon refresh
-	/// Loads photos from database.
-	private func loadPhotosForPin() {
+	private func callFlickrForNewPhotos() {
+
+		let flickrAPI = Flickr()
+		flickrAPI.getImages(forPin: pin)
+	}
+	
+	private func deleteExistingPhotosForCurrentPin() {
 		
-		// we already have the fetch request, so go ahead and pull the photos for this request
-		guard let photosFromDB = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(fetchRequest) as! [Photo] else {
+		let request = NSFetchRequest(entityName: "Photo")
+		let predicate = NSPredicate(format: "pin == %@", pin)
+		request.predicate = predicate
+		
+		guard let photosToDelete = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
 			
 			print("An error occurred while retrieving photos for selected pin!")
 			return
 		}
 		
-		photos = photosFromDB
+		for photo in photosToDelete {
+			CoreDataStack.shared.privateManagedObjectContext.deleteObject(photo)
+		}
+		
+		CoreDataStack.shared.saveContext()
 	}
-
-
+	
+	
 }

@@ -100,7 +100,10 @@
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XFb-kq-8F6">
                                 <rect key="frame" x="0.0" y="570" width="600" height="30"/>
-                                <state key="normal" title="Button"/>
+                                <state key="normal" title="New Collection"/>
+                                <connections>
+                                    <action selector="retrieveNewPhotos:" destination="y08-jC-lpc" eventType="touchUpInside" id="dVx-HH-T5S"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
