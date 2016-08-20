@@ -223,6 +223,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	private func deletePhotoAtRow(row: Int) {
 		
+		// TODO: ensure photo's not deleted already? User might be able to click 2x if they think nothing's happening.
+		// TODO: maybe save this one on main???
+		// TODO: photo not removing from view - why not???
 		let managedPhotoObject = photos[row]
 		
 		CoreDataStack.shared.privateManagedObjectContext.deleteObject(managedPhotoObject)

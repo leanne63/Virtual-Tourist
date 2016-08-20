@@ -64,7 +64,7 @@
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="hid-XI-2HP">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="570"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="BN4-ir-6OX">
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="BN4-ir-6OX" customClass="PhotoAlbumViewFlowLayout" customModule="Virtual_Tourist" customModuleProvider="target">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -79,7 +79,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="4M9-hC-2uD">
-                                                    <rect key="frame" x="0.0" y="1" width="50" height="49"/>
+                                                    <rect key="frame" x="1" y="1" width="48" height="49"/>
                                                 </imageView>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -87,9 +87,9 @@
                                         <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         <constraints>
                                             <constraint firstItem="4M9-hC-2uD" firstAttribute="centerX" secondItem="ptz-CC-hPY" secondAttribute="centerX" id="a4U-Rs-uAb"/>
-                                            <constraint firstItem="4M9-hC-2uD" firstAttribute="height" secondItem="ptz-CC-hPY" secondAttribute="height" multiplier="98%" id="eBk-8P-uAA"/>
+                                            <constraint firstItem="4M9-hC-2uD" firstAttribute="height" secondItem="ptz-CC-hPY" secondAttribute="height" multiplier="97%" id="eBk-8P-uAA"/>
                                             <constraint firstItem="4M9-hC-2uD" firstAttribute="centerY" secondItem="ptz-CC-hPY" secondAttribute="centerY" id="k2Y-d5-6aZ"/>
-                                            <constraint firstItem="4M9-hC-2uD" firstAttribute="width" secondItem="ptz-CC-hPY" secondAttribute="width" id="rZk-D0-D7C"/>
+                                            <constraint firstItem="4M9-hC-2uD" firstAttribute="width" secondItem="ptz-CC-hPY" secondAttribute="width" multiplier="97%" id="rZk-D0-D7C"/>
                                         </constraints>
                                     </collectionViewCell>
                                 </cells>
