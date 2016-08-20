@@ -84,12 +84,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 
     // MARK: UICollectionViewDelegate
 
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true
     }
-    */
+	
+	func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+		let row = indexPath.row
+		deletePhotoAtRow(row)
+	}
 
     /*
     // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
@@ -184,6 +186,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		deleteExistingPhotosForCurrentPin()
 		
 		callFlickrForNewPhotos()
+		
+		collectionView.reloadData()
 	}
 	
 	
@@ -215,6 +219,18 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		// remove photos from our array, too (so it won't contain data that no longer exists in the database)
 		photos.removeAll()
+	}
+	
+	private func deletePhotoAtRow(row: Int) {
+		
+		let managedPhotoObject = photos[row]
+		
+		CoreDataStack.shared.privateManagedObjectContext.deleteObject(managedPhotoObject)
+
+		CoreDataStack.shared.saveContext()
+		
+		// remove the photo from the array, too (so it won't contain a photo that no longer exists in the database)
+		photos.removeAtIndex(row)
 	}
 	
 	
