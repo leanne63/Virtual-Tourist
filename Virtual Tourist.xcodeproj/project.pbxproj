@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D52938B21D48103C003CCD2A /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = D52938B11D48103C003CCD2A /* CoreDataStack.swift */; };
 		D567A7401D677D7A008F28AA /* PhotoAlbumViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = D567A73F1D677D7A008F28AA /* PhotoAlbumViewFlowLayout.swift */; };
+		D567A7421D6A1F38008F28AA /* Extension_NSFetchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D567A7411D6A1F38008F28AA /* Extension_NSFetchRequest.swift */; };
 		D592243D1D416809000D644B /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D592243C1D416809000D644B /* MapKit.framework */; };
 		D592243F1D44090A000D644B /* MapModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D592243E1D44090A000D644B /* MapModel.swift */; };
 		D59224421D46C119000D644B /* Extension_CLLocationCoordinate2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59224411D46C119000D644B /* Extension_CLLocationCoordinate2D.swift */; };
@@ -53,6 +54,7 @@
 /* Begin PBXFileReference section */
 		D52938B11D48103C003CCD2A /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		D567A73F1D677D7A008F28AA /* PhotoAlbumViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewFlowLayout.swift; sourceTree = "<group>"; };
+		D567A7411D6A1F38008F28AA /* Extension_NSFetchRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension_NSFetchRequest.swift; sourceTree = "<group>"; };
 		D592243C1D416809000D644B /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		D592243E1D44090A000D644B /* MapModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapModel.swift; sourceTree = "<group>"; };
 		D59224411D46C119000D644B /* Extension_CLLocationCoordinate2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension_CLLocationCoordinate2D.swift; sourceTree = "<group>"; };
@@ -111,10 +113,11 @@
 		D59224401D46C0C8000D644B /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				D5DCB9C61D623F740083E26B /* OperatorOverloads.swift */,
 				D59224411D46C119000D644B /* Extension_CLLocationCoordinate2D.swift */,
 				D5DCB9C41D60391C0083E26B /* Extension_NSNotificationCenter.swift */,
-				D5DCB9C61D623F740083E26B /* OperatorOverloads.swift */,
 				D5DCB9C81D663D220083E26B /* Extension_SCNetworkReachability.swift */,
+				D567A7411D6A1F38008F28AA /* Extension_NSFetchRequest.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -364,6 +367,7 @@
 				D5DCB9C91D663D220083E26B /* Extension_SCNetworkReachability.swift in Sources */,
 				D5DCB9C51D60391C0083E26B /* Extension_NSNotificationCenter.swift in Sources */,
 				D59C88F21D41591100620064 /* AppDelegate.swift in Sources */,
+				D567A7421D6A1F38008F28AA /* Extension_NSFetchRequest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -55,9 +55,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 
 			let pin = sender as! Pin
 			
-			let request = NSFetchRequest(entityName: "Photo")
-			let predicate = NSPredicate(format: "pin == %@", pin)
-			request.predicate = predicate
+			let request = NSFetchRequest.allPhotosForPin(pin)
 			
 			guard let photos = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
 				
@@ -65,10 +63,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 				return
 			}
 			
-			let controller = segue.destinationViewController as! PhotoAlbumViewController
-			controller.fetchRequest = request
-			controller.pin = pin
-			controller.photos = photos
+			let destController = segue.destinationViewController as! PhotoAlbumViewController
+			destController.pin = pin
+			destController.photos = photos
 		}
 	}
 	
@@ -112,12 +109,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		
 		storeCurrentMapRegion()
 		
-		let pinLat = view.annotation!.coordinate.latitude
-		let pinLon = view.annotation!.coordinate.longitude
-		
-		let request = NSFetchRequest(entityName:"Pin")
-		let predicate = NSPredicate(format: "latitude == %lf && longitude == %lf", pinLat, pinLon)
-		request.predicate = predicate
+		let location = view.annotation!.coordinate
+		let request = NSFetchRequest.allPinsForLocation(location)
 		
 		guard let pinsFound =
 			try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Pin] where pinsFound.count == 1 else {
@@ -174,7 +167,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	/// Loads pins from database.
 	private func loadMapData() {
 		
-		let request = NSFetchRequest(entityName:"Pin")
+		let request = NSFetchRequest.allPins()
 		guard let pins = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Pin] else {
 			
 			print("Unable to retrieve pins from database!")

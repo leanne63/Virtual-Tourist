@@ -20,7 +20,7 @@ extension SCNetworkReachability {
 	- returns: true if network available, false otherwise.
 	
 	*/
-	static func checkIfNetworkAvailable(urlToReach: NSURL) -> Bool {
+	class func checkIfNetworkAvailable(urlToReach: NSURL) -> Bool {
 		
 		let host = (urlToReach.absoluteString as NSString).UTF8String
 		guard let ref = SCNetworkReachabilityCreateWithName(nil, host) else {

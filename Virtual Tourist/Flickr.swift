@@ -283,13 +283,10 @@ class Flickr {
 				// save the context
 				CoreDataStack.shared.saveContext()
 				
+				// TODO: remove custom; use context saved notification instead
 				// notify observers that we're done!
 				userInfo = [FlickrConstants.NotificationKeys.NumPhotosSavedKey: numPhotosSaved]
 				NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotosDidSaveNotification, object: nil, userInfo: userInfo)
-			}
-			else {
-				// notify observers that we're done, but received no photos
-				NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.NoPhotosDidSaveNotification, object: nil, userInfo: nil)
 			}
 		}
 		

@@ -20,9 +20,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	var pin: Pin!
 	var photos: [Photo]!
-	var fetchRequest: NSFetchRequest!
-	
-	var numPhotosToDisplay: Int!
 	
 	
 	// MARK: - Outlets
@@ -40,7 +37,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		subscribeToNotifications()
 		
 		// note: to test zero photos, simply delete photos for this pin from the database
-		numPhotosToDisplay = photos.count
+		let numPhotosToDisplay = photos.count
 		
 		if numPhotosToDisplay == 0 {
 			callFlickrForNewPhotos()
@@ -59,7 +56,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
-		return numPhotosToDisplay
+		let numItems = photos.count
+		
+		return numItems
     }
 
 	func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
@@ -82,7 +81,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         return cell
     }
 
-    // MARK: UICollectionViewDelegate
+    // MARK: - UICollectionViewDelegate
 
     func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true
@@ -113,69 +112,33 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	private func subscribeToNotifications() {
 		
-		NSNotificationCenter.defaultCenter().addObserver(self,
-		                                                 selector: #selector(photosWillBeSaved(_:)),
-		                                                 name: FlickrConstants.NotificationKeys.PhotosWillSaveNotification,
-		                                                 object: nil)
-
-		NSNotificationCenter.defaultCenter().addObserver(self,
-		                                                 selector: #selector(photosDidSave(_:)),
-		                                                 name: FlickrConstants.NotificationKeys.PhotosDidSaveNotification,
-		                                                 object: nil)
+		/* Managed Object Context notifications */
 		
 		NSNotificationCenter.defaultCenter().addObserver(self,
-		                                                 selector: #selector(noPhotosDidSave(_:)),
-		                                                 name: FlickrConstants.NotificationKeys.NoPhotosDidSaveNotification,
+		                                                 selector: #selector(managedObjectContextDidSave(_:)),
+		                                                 name: NSManagedObjectContextDidSaveNotification,
 		                                                 object: nil)
 	}
 	
-	func photosWillBeSaved(notification: NSNotification) {
+	func managedObjectContextDidSave(notification: NSNotification) {
 		
-		if let userInfo = notification.userInfo as? [String: Int] {
-			numPhotosToDisplay = userInfo[FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey]!
+		let notificationContext = notification.object as! NSManagedObjectContext
+		let mainContext = CoreDataStack.shared.mainManagedObjectContext
+		
+		if notificationContext == CoreDataStack.shared.privateManagedObjectContext {
+			mainContext.mergeChangesFromContextDidSaveNotification(notification)
 		}
 		
-		collectionView!.reloadData()
-	}
-	
-	func photosDidSave(notification: NSNotification) {
-		
-		if let userInfo = notification.userInfo as? [String: Int] {
-			numPhotosToDisplay = userInfo[FlickrConstants.NotificationKeys.NumPhotosSavedKey]!
-		}
-		
-		var photosRemaining: Int = numPhotosToDisplay
-		var currentPhoto: Int = 0
-		while photosRemaining > 0 {
-			guard let photosFromDB = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(fetchRequest) as! [Photo] else {
-				continue
-			}
+		let request = NSFetchRequest.allPhotosForPin(pin)
+		guard let newPhotos = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
 			
-			let numPhotosAvailable = photosFromDB.count
-			if numPhotosAvailable > 0 {
-				photos = photosFromDB
-				
-				collectionView.reloadData()
-				
-				let maxIndex = numPhotosAvailable - 1
-				for indexValue in currentPhoto...maxIndex {
-					let indexPath = NSIndexPath(forItem: indexValue, inSection: 0)
-					if collectionView!.numberOfItemsInSection(0) == currentPhoto {
-						collectionView!.insertItemsAtIndexPaths([indexPath])
-					}
-					else {
-						collectionView!.reloadItemsAtIndexPaths([indexPath])
-					}
-					currentPhoto += 1
-					photosRemaining -= 1
-				}
-			}
+			print("An error occurred while retrieving photos for selected pin!")
+			return
 		}
-	}
-	
-	func noPhotosDidSave(notification: NSNotification) {
-		// TODO: what do we want to do if no photos were saved???
-		print("No photos were saved.")
+		
+		photos = newPhotos
+		
+		collectionView.reloadData()
 	}
 	
 	
@@ -186,8 +149,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		deleteExistingPhotosForCurrentPin()
 		
 		callFlickrForNewPhotos()
-		
-		collectionView.reloadData()
 	}
 	
 	
@@ -201,39 +162,28 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	private func deleteExistingPhotosForCurrentPin() {
 		
-		let request = NSFetchRequest(entityName: "Photo")
-		let predicate = NSPredicate(format: "pin == %@", pin)
-		request.predicate = predicate
+		let request = NSFetchRequest.allPhotosForPin(pin)
 		
 		guard let photosToDelete = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
 			
 			print("An error occurred while retrieving photos for selected pin!")
 			return
 		}
-		
+
 		for photo in photosToDelete {
 			CoreDataStack.shared.privateManagedObjectContext.deleteObject(photo)
 		}
 		
 		CoreDataStack.shared.saveContext()
-		
-		// remove photos from our array, too (so it won't contain data that no longer exists in the database)
-		photos.removeAll()
 	}
 	
 	private func deletePhotoAtRow(row: Int) {
 		
-		// TODO: ensure photo's not deleted already? User might be able to click 2x if they think nothing's happening.
-		// TODO: maybe save this one on main???
-		// TODO: photo not removing from view - why not???
-		let managedPhotoObject = photos[row]
+		let managedPhoto = photos[row]
 		
-		CoreDataStack.shared.privateManagedObjectContext.deleteObject(managedPhotoObject)
+		CoreDataStack.shared.privateManagedObjectContext.deleteObject(managedPhoto)
 
 		CoreDataStack.shared.saveContext()
-		
-		// remove the photo from the array, too (so it won't contain a photo that no longer exists in the database)
-		photos.removeAtIndex(row)
 	}
 	
 	
