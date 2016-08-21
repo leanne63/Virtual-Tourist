@@ -33,6 +33,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     override func viewDidLoad() {
         super.viewDidLoad()
 		
+		print("\n\nmain context:\n\(CoreDataStack.shared.mainManagedObjectContext)")
+		print("\nprivate context:\n\(CoreDataStack.shared.privateManagedObjectContext)")
+		print("\nphotos:\n\(photos)\n\n")
+		
+		print("***** IN \(#function)")
+		
 		collectionView!.delegate = self
 		
 		subscribeToNotifications()
@@ -41,7 +47,13 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		let numPhotosToDisplay = photos.count
 		
 		if numPhotosToDisplay == 0 {
-			callFlickrForNewPhotos()
+			newCollectionButton.enabled = false
+			
+			// get new photos in the background...
+			retrieveNewPhotos()
+		}
+		else {
+			collectionView.reloadData()
 		}
     }
 	
@@ -57,6 +69,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
+		print("***** IN \(#function)")
+		
 		let numItems = photos.count
 		
 		return numItems
@@ -65,6 +79,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath)
     
+		print("***** IN \(#function)")
+		print("\nphotos:\n\(photos)\n\n")
+		
 		let cellImageView = cell.viewWithTag(1) as! UIImageView
 		
 		let activityIndicator = UIActivityIndicatorView()
@@ -85,33 +102,24 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     // MARK: - UICollectionViewDelegate
 
     func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
+		print("***** IN \(#function)")
+		
         return true
     }
 	
 	func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+		print("***** IN \(#function)")
+		
 		let row = indexPath.row
 		deletePhotoAtRow(row)
 	}
 
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(collectionView: UICollectionView, shouldShowMenuForItemAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(collectionView: UICollectionView, canPerformAction action: Selector, forItemAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject?) -> Bool {
-        return false
-    }
-
-    override func collectionView(collectionView: UICollectionView, performAction action: Selector, forItemAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject?) {
-    
-    }
-    */
-	
 	
 	// MARK: - Observer-Related Methods
 	
 	private func subscribeToNotifications() {
+		
+		print("***** IN \(#function)")
 		
 		/* Managed Object Context notifications */
 		
@@ -123,23 +131,15 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
 		
+		print("***** IN \(#function)")
+		
 		let notificationContext = notification.object as! NSManagedObjectContext
 		let mainContext = CoreDataStack.shared.mainManagedObjectContext
 		
 		if notificationContext == mainContext {
-			let request = NSFetchRequest.allPhotosForPin(pin)
-			
-			guard let newPhotos = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
-				
-				print("An error occurred while retrieving photos for selected pin!")
-				return
+			NSOperationQueue.mainQueue().addOperationWithBlock {
+				self.retrieveExistingPhotosForDisplay()
 			}
-			
-			photos = newPhotos
-			
-			collectionView.reloadData()
-			
-			newCollectionButton.enabled = true
 		}
 	}
 	
@@ -148,23 +148,54 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	@IBAction func retrieveNewPhotos(sender: UIButton) {
 		
+		print("***** IN \(#function)")
+		
 		newCollectionButton.enabled = false
 		
 		deleteExistingPhotosForCurrentPin()
 		
-		callFlickrForNewPhotos()
+		retrieveNewPhotos()
 	}
 	
 	
 	// MARK: - Private Functions
 	
-	private func callFlickrForNewPhotos() {
+	private func retrieveNewPhotos() {
 
-		let flickrAPI = Flickr()
-		flickrAPI.getImages(forPin: pin)
+		print("***** IN \(#function)")
+		
+		// use a queue to run the request in the background
+		let backgroundQueue = NSOperationQueue()
+		backgroundQueue.name = "backgroundQueue"
+		backgroundQueue.addOperationWithBlock {
+		
+			let flickrAPI = Flickr()
+			flickrAPI.getImages(forPin: self.pin)
+		}
+	}
+	
+	private func retrieveExistingPhotosForDisplay() {
+
+		print("***** IN \(#function)")
+		
+		let request = NSFetchRequest.allPhotosForPin(pin)
+		
+		guard let newPhotos = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
+			
+			print("An error occurred while retrieving photos for selected pin!")
+			return
+		}
+		
+		photos = newPhotos
+		
+		collectionView.reloadData()
+		
+		newCollectionButton.enabled = true
 	}
 	
 	private func deleteExistingPhotosForCurrentPin() {
+		
+		print("***** IN \(#function)")
 		
 		let request = NSFetchRequest.allPhotosForPin(pin)
 		
@@ -182,6 +213,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	}
 	
 	private func deletePhotoAtRow(row: Int) {
+		
+		print("***** IN \(#function)")
 		
 		let managedPhoto = photos[row]
 		

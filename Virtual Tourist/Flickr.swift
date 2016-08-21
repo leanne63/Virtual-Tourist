@@ -95,9 +95,6 @@ class Flickr {
 	*/
 	private func retrieveImagesFromFlickrBySearch(methodParameters: [String: AnyObject], forPin pin: Pin) {
 		
-		// TODO: remove test prints
-		print(flickrURLFromParameters(methodParameters))
-		
 		let requestURL = flickrURLFromParameters(methodParameters)
 		let request = NSURLRequest(URL: requestURL)
 
@@ -156,9 +153,6 @@ class Flickr {
 			}
 			
 			let randomPageNumber = Int(arc4random_uniform(UInt32(numPages)))
-			print("random page number: \(randomPageNumber) of \(numPages) total pages")
-			
-			print("***** PHOTOS DICTIONARY, \(numPages) pages, random page chosen: \(randomPageNumber) *****\n\(photosDictionary)")
 			
 			self.retrieveImagesFromFlickrBySearch(methodParameters, withPageNumber: randomPageNumber, forPin: pin)
 		}
@@ -183,9 +177,6 @@ class Flickr {
 		
 		// now we can add the desired page number
 		methodParameters[FlickrConstants.ParameterKeys.Page] = page
-		
-		// TODO: remove test prints
-		print("PAGE:\n\(flickrURLFromParameters(methodParameters))")
 		
 		// and make the request
 		let requestURL = flickrURLFromParameters(methodParameters)
