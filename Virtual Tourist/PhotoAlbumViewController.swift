@@ -20,6 +20,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	var pin: Pin!
 	var photos: [Photo]!
+	var expectedNumberOfPhotos: Int = 0
 	
 	
 	// MARK: - Outlets
@@ -38,7 +39,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		subscribeToNotifications()
 		
 		// note: to test zero photos, simply delete photos for this pin from the database
-		let numPhotosToDisplay = photos.count
+		let numPhotosToDisplay = expectedNumberOfPhotos
 		
 		if numPhotosToDisplay == 0 {
 			newCollectionButton.enabled = false
@@ -63,7 +64,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
-		let numItems = photos.count
+		let numItems = expectedNumberOfPhotos
 		
 		return numItems
     }
@@ -109,12 +110,24 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	private func subscribeToNotifications() {
 		
+		/* custom app-specific notifications */
+		
+		NSNotificationCenter.defaultCenter().addObserver(self,
+		                                                 selector: #selector(photosWillSave(_:)),
+		                                                 name: FlickrConstants.NotificationKeys.PhotosWillSaveNotification,
+		                                                 object: nil)
+
+		
 		/* Managed Object Context notifications */
 		
 		NSNotificationCenter.defaultCenter().addObserver(self,
 		                                                 selector: #selector(managedObjectContextDidSave(_:)),
 		                                                 name: NSManagedObjectContextDidSaveNotification,
 		                                                 object: nil)
+	}
+	
+	func photosWillSave(notification: NSNotification) {
+		expectedNumberOfPhotos = notification.userInfo![FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey] as! Int
 	}
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
