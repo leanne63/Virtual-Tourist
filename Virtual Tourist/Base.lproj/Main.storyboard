@@ -119,6 +119,7 @@
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="hid-XI-2HP" id="6EB-bd-HbC"/>
+                        <outlet property="newCollectionButton" destination="XFb-kq-8F6" id="od8-Bb-9FD"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3BY-hd-biX" userLabel="First Responder" sceneMemberID="firstResponder"/>

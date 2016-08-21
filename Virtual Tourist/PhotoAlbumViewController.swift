@@ -25,6 +25,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	// MARK: - Outlets
 	
 	@IBOutlet weak var collectionView: UICollectionView!
+	@IBOutlet weak var newCollectionButton: UIButton!
 	
 	
 	// MARK: - Overrides (Lifecycle)
@@ -125,26 +126,29 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		let notificationContext = notification.object as! NSManagedObjectContext
 		let mainContext = CoreDataStack.shared.mainManagedObjectContext
 		
-		if notificationContext == CoreDataStack.shared.privateManagedObjectContext {
-			mainContext.mergeChangesFromContextDidSaveNotification(notification)
-		}
-		
-		let request = NSFetchRequest.allPhotosForPin(pin)
-		guard let newPhotos = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
+		if notificationContext == mainContext {
+			let request = NSFetchRequest.allPhotosForPin(pin)
 			
-			print("An error occurred while retrieving photos for selected pin!")
-			return
+			guard let newPhotos = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
+				
+				print("An error occurred while retrieving photos for selected pin!")
+				return
+			}
+			
+			photos = newPhotos
+			
+			collectionView.reloadData()
+			
+			newCollectionButton.enabled = true
 		}
-		
-		photos = newPhotos
-		
-		collectionView.reloadData()
 	}
 	
 	
 	// MARK: - Actions
 	
 	@IBAction func retrieveNewPhotos(sender: UIButton) {
+		
+		newCollectionButton.enabled = false
 		
 		deleteExistingPhotosForCurrentPin()
 		
@@ -164,14 +168,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		let request = NSFetchRequest.allPhotosForPin(pin)
 		
-		guard let photosToDelete = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
+		guard let photosToDelete = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
 			
 			print("An error occurred while retrieving photos for selected pin!")
 			return
 		}
 
 		for photo in photosToDelete {
-			CoreDataStack.shared.privateManagedObjectContext.deleteObject(photo)
+			CoreDataStack.shared.mainManagedObjectContext.deleteObject(photo)
 		}
 		
 		CoreDataStack.shared.saveContext()
@@ -181,7 +185,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		let managedPhoto = photos[row]
 		
-		CoreDataStack.shared.privateManagedObjectContext.deleteObject(managedPhoto)
+		CoreDataStack.shared.mainManagedObjectContext.deleteObject(managedPhoto)
 
 		CoreDataStack.shared.saveContext()
 	}

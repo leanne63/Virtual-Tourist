@@ -57,24 +57,23 @@ class CoreDataStack {
 	/*
 	   Resource for usual stack setup explanations and performance tests:
 		https://developmentnow.com/2015/04/28/experimenting-with-the-parent-child-concurrency-pattern-to-optimize-coredata-apps/
-
-	   Experimenting here: instead of "writer" MOC setup, creating a "reverse" "double MOC" setup:
-		non-temporary private-queue MOC as parent/root, and main MOC as child...
 	*/
-	lazy var privateManagedObjectContext: NSManagedObjectContext = {
-		// Returns the (PrivateQueueConcurrencyType) managed object context for the application (which is already bound to the persistent store coordinator for the application.) This property is optional since there are legitimate error conditions that could cause the creation of the context to fail.
+	lazy var mainManagedObjectContext: NSManagedObjectContext = {
+		// Returns the (MainQueueConcurrencyType) managed object context for the application (which is already bound to the persistent store coordinator for the application.) This property is optional since there are legitimate error conditions that could cause the creation of the context to fail.
 		let coordinator = self.persistentStoreCoordinator
-		var managedObjectContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+		var managedObjectContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
 		// Connecting to the store coordinator makes this the "root" parent context
 		managedObjectContext.persistentStoreCoordinator = coordinator
+		
 		return managedObjectContext
 	}()
 	
-	lazy var mainManagedObjectContext: NSManagedObjectContext = {
-		// Returns the (MainQueueConcurrencyType) managed object context for the application (which is already bound to the private MOC for the application.) This property is optional since there are legitimate error conditions that could cause the creation of the context to fail.
-		var managedObjectContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
+	lazy var privateManagedObjectContext: NSManagedObjectContext = {
+		// Returns the (PrivateQueueConcurrencyType) managed object context for the application (which is already bound to the private MOC for the application.) This property is optional since there are legitimate error conditions that could cause the creation of the context to fail.
+		var managedObjectContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
 		// For experiment, this is the child, so set its parent to the private context
-		managedObjectContext.parentContext = self.privateManagedObjectContext
+		managedObjectContext.parentContext = self.mainManagedObjectContext
+		
 		return managedObjectContext
 	}()
 	
@@ -84,6 +83,20 @@ class CoreDataStack {
 	// MARK: - Core Data Saving support
 	
 	func saveContext () {
+		if privateManagedObjectContext.hasChanges {
+			do {
+				print("***** SAVING PRIVATE CONTEXT *****")
+				try privateManagedObjectContext.save()
+			} catch {
+				print("***** FAILED TO SAVE PRIVATE CONTEXT *****")
+				// Replace this implementation with code to handle the error appropriately.
+				// abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+				let nserror = error as NSError
+				NSLog("Unresolved error \(nserror), \(nserror.userInfo)")
+				abort()
+			}
+		}
+
 		if mainManagedObjectContext.hasChanges {
 			do {
 				print("***** SAVING MAIN CONTEXT *****")
@@ -97,20 +110,6 @@ class CoreDataStack {
 				abort()
 			}
 			
-		}
-		
-		if privateManagedObjectContext.hasChanges {
-			do {
-				print("***** SAVING PRIVATE CONTEXT *****")
-				try privateManagedObjectContext.save()
-			} catch {
-				print("***** FAILED TO SAVE PRIVATE CONTEXT *****")
-				// Replace this implementation with code to handle the error appropriately.
-				// abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-				let nserror = error as NSError
-				NSLog("Unresolved error \(nserror), \(nserror.userInfo)")
-				abort()
-			}
 		}
 	}
 
