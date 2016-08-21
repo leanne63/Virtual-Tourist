@@ -190,7 +190,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	private func deletePhotoAtRow(row: Int) {
 		
-		let managedPhoto = photos[row]
+		let photoToDelete = photos[row]
+		let managedPhoto = CoreDataStack.shared.mainManagedObjectContext.objectWithID(photoToDelete.objectID)
 		
 		CoreDataStack.shared.mainManagedObjectContext.deleteObject(managedPhoto)
 
