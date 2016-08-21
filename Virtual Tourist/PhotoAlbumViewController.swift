@@ -16,7 +16,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	private let reuseIdentifier = "reusableCell"
 	
 	
-	// MARK: - Properties
+	// MARK: - Properties (non-outlets)
 	
 	var pin: Pin!
 	var photos: [Photo]!
@@ -33,12 +33,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     override func viewDidLoad() {
         super.viewDidLoad()
 		
-		print("\n\nmain context:\n\(CoreDataStack.shared.mainManagedObjectContext)")
-		print("\nprivate context:\n\(CoreDataStack.shared.privateManagedObjectContext)")
-		print("\nphotos:\n\(photos)\n\n")
-		
-		print("***** IN \(#function)")
-		
 		collectionView!.delegate = self
 		
 		subscribeToNotifications()
@@ -49,7 +43,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		if numPhotosToDisplay == 0 {
 			newCollectionButton.enabled = false
 			
-			// get new photos in the background...
+			// get new photos
 			retrieveNewPhotos()
 		}
 		else {
@@ -69,8 +63,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
-		print("***** IN \(#function)")
-		
 		let numItems = photos.count
 		
 		return numItems
@@ -79,9 +71,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath)
     
-		print("***** IN \(#function)")
-		print("\nphotos:\n\(photos)\n\n")
-		
 		let cellImageView = cell.viewWithTag(1) as! UIImageView
 		
 		let activityIndicator = UIActivityIndicatorView()
@@ -93,6 +82,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		if photos.count > 0 {
 			imageData = photos[indexPath.row].photo!
 		}
+		else {
+			// TODO: alert that photos are being retrieved
+		}
 		
 		cellImageView.image = UIImage(data: imageData)
 		
@@ -102,13 +94,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     // MARK: - UICollectionViewDelegate
 
     func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
-		print("***** IN \(#function)")
 		
         return true
     }
 	
 	func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-		print("***** IN \(#function)")
 		
 		let row = indexPath.row
 		deletePhotoAtRow(row)
@@ -118,8 +108,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	// MARK: - Observer-Related Methods
 	
 	private func subscribeToNotifications() {
-		
-		print("***** IN \(#function)")
 		
 		/* Managed Object Context notifications */
 		
@@ -131,15 +119,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
 		
-		print("***** IN \(#function)")
-		
 		let notificationContext = notification.object as! NSManagedObjectContext
 		let mainContext = CoreDataStack.shared.mainManagedObjectContext
 		
 		if notificationContext == mainContext {
-			NSOperationQueue.mainQueue().addOperationWithBlock {
-				self.retrieveExistingPhotosForDisplay()
-			}
+			retrieveExistingPhotosForDisplay()
 		}
 	}
 	
@@ -147,8 +131,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	// MARK: - Actions
 	
 	@IBAction func retrieveNewPhotos(sender: UIButton) {
-		
-		print("***** IN \(#function)")
 		
 		newCollectionButton.enabled = false
 		
@@ -162,8 +144,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	private func retrieveNewPhotos() {
 
-		print("***** IN \(#function)")
-		
 		// use a queue to run the request in the background
 		let backgroundQueue = NSOperationQueue()
 		backgroundQueue.name = "backgroundQueue"
@@ -176,8 +156,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	private func retrieveExistingPhotosForDisplay() {
 
-		print("***** IN \(#function)")
-		
 		let request = NSFetchRequest.allPhotosForPin(pin)
 		
 		guard let newPhotos = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
@@ -195,8 +173,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	private func deleteExistingPhotosForCurrentPin() {
 		
-		print("***** IN \(#function)")
-		
 		let request = NSFetchRequest.allPhotosForPin(pin)
 		
 		guard let photosToDelete = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
@@ -213,8 +189,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	}
 	
 	private func deletePhotoAtRow(row: Int) {
-		
-		print("***** IN \(#function)")
 		
 		let managedPhoto = photos[row]
 		

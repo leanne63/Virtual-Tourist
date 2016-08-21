@@ -84,32 +84,33 @@ class CoreDataStack {
 	
 	func saveContext () {
 		if privateManagedObjectContext.hasChanges {
-			do {
-				print("***** SAVING PRIVATE CONTEXT *****")
-				try privateManagedObjectContext.save()
-			} catch {
-				print("***** FAILED TO SAVE PRIVATE CONTEXT *****")
-				// Replace this implementation with code to handle the error appropriately.
-				// abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-				let nserror = error as NSError
-				NSLog("Unresolved error \(nserror), \(nserror.userInfo)")
-				abort()
+			// ensure context saves on private thread
+			privateManagedObjectContext.performBlock {
+				do {
+					try self.privateManagedObjectContext.save()
+				} catch {
+					// Replace this implementation with code to handle the error appropriately.
+					// abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+					let nserror = error as NSError
+					NSLog("Unresolved error \(nserror), \(nserror.userInfo)")
+					abort()
+				}
 			}
 		}
 
 		if mainManagedObjectContext.hasChanges {
-			do {
-				print("***** SAVING MAIN CONTEXT *****")
-				try mainManagedObjectContext.save()
-			} catch {
-				print("***** FAILED TO SAVE MAIN CONTEXT *****")
-				// Replace this implementation with code to handle the error appropriately.
-				// abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-				let nserror = error as NSError
-				NSLog("Unresolved error \(nserror), \(nserror.userInfo)")
-				abort()
+			// do this save on a block and wait, so notification will be sent on main thread
+			mainManagedObjectContext.performBlockAndWait {
+				do {
+					try self.mainManagedObjectContext.save()
+				} catch {
+					// Replace this implementation with code to handle the error appropriately.
+					// abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+					let nserror = error as NSError
+					NSLog("Unresolved error \(nserror), \(nserror.userInfo)")
+					abort()
+				}
 			}
-			
 		}
 	}
 
