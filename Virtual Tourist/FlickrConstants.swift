@@ -10,6 +10,11 @@ import Foundation
 
 struct FlickrConstants {
 	
+	// MARK: - Default Values
+	struct Defaults {
+		static let NumberOfPhotos: Int = 10
+	}
+	
 	// MARK: Network
 	struct Network {
 		// NSURL will take non-URL, and SCNetworkReachability doesn't actually access URL,
@@ -68,7 +73,7 @@ struct FlickrConstants {
 		static let GalleryID = "5704-72157622566655097"
 		static let MediumURL = "url_m"
 		static let UseSafeSearch = "1"
-		static let NumPerPage = "10"
+		static let NumPerPage = String(Defaults.NumberOfPhotos)
 		static let MinUploadDate = "2014/01/01"
 	}
 	

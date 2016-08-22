@@ -34,21 +34,17 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     override func viewDidLoad() {
         super.viewDidLoad()
 		
+		newCollectionButton.enabled = false
+		
 		collectionView!.delegate = self
 		
 		subscribeToNotifications()
 		
-		// note: to test zero photos, simply delete photos for this pin from the database
 		let numPhotosToDisplay = expectedNumberOfPhotos
 		
 		if numPhotosToDisplay == 0 {
-			newCollectionButton.enabled = false
-			
 			// get new photos
-			retrieveNewPhotos()
-		}
-		else {
-			collectionView.reloadData()
+			retrieveNewPhotosFromFlickr()
 		}
     }
 	
@@ -64,7 +60,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
-		let numItems = expectedNumberOfPhotos
+		let numItems = (expectedNumberOfPhotos > 0) ? expectedNumberOfPhotos : FlickrConstants.Defaults.NumberOfPhotos
 		
 		return numItems
     }
@@ -72,22 +68,39 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath)
     
+		// if we've got photos to put in the cell, go for it
 		let cellImageView = cell.viewWithTag(1) as! UIImageView
 		
-		let activityIndicator = UIActivityIndicatorView()
-		activityIndicator.activityIndicatorViewStyle = .WhiteLarge
-		activityIndicator.hidesWhenStopped = true
-		
-		var imageData = NSData()
-		
-		if photos.count > 0 {
-			imageData = photos[indexPath.row].photo!
+		let numPhotos = photos.count
+		if numPhotos > 0 && indexPath.row < numPhotos {
+			// check for an activity indicator from last time through; if there, stop animating/hide it
+			if let backgroundView = cell.backgroundView as? UIActivityIndicatorView {
+				backgroundView.stopAnimating()
+			}
+			
+			// put the photo in place
+			let imageData: NSData = photos[indexPath.row].photo!
+			
+			cellImageView.image = UIImage(data: imageData)
+			cellImageView.hidden = false
+			
+			// if we're on the last photo, re-enable the "new collection" button
+			if indexPath.row == numPhotos - 1 {
+				newCollectionButton.enabled = true
+			}
 		}
 		else {
-			// TODO: alert that photos are being retrieved
+			// otherwise, place an activity indicator in the cell to note photos are coming!
+			cellImageView.hidden = true
+			
+			let activityIndicator = UIActivityIndicatorView()
+			activityIndicator.activityIndicatorViewStyle = .WhiteLarge
+			activityIndicator.hidesWhenStopped = true
+			
+			cell.backgroundView = activityIndicator
+			activityIndicator.startAnimating()
 		}
 		
-		cellImageView.image = UIImage(data: imageData)
 		
         return cell
     }
@@ -103,6 +116,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		let row = indexPath.row
 		deletePhotoAtRow(row)
+		
+		// decrease the expected number of photos, to ensure a correct number of placeholders
+		expectedNumberOfPhotos -= 1
 	}
 
 	
@@ -127,6 +143,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	}
 	
 	func photosWillSave(notification: NSNotification) {
+		
 		expectedNumberOfPhotos = notification.userInfo![FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey] as! Int
 	}
 	
@@ -149,26 +166,20 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		deleteExistingPhotosForCurrentPin()
 		
-		retrieveNewPhotos()
+		retrieveNewPhotosFromFlickr()
 	}
 	
 	
 	// MARK: - Private Functions
 	
-	private func retrieveNewPhotos() {
-
-		// use a queue to run the request in the background
-		let backgroundQueue = NSOperationQueue()
-		backgroundQueue.name = "backgroundQueue"
-		backgroundQueue.addOperationWithBlock {
+	private func retrieveNewPhotosFromFlickr() {
 		
-			let flickrAPI = Flickr()
-			flickrAPI.getImages(forPin: self.pin)
-		}
+		let flickrAPI = Flickr()
+		flickrAPI.getImages(forPin: self.pin)
 	}
 	
 	private func retrieveExistingPhotosForDisplay() {
-
+		
 		let request = NSFetchRequest.allPhotosForPin(pin)
 		
 		guard let newPhotos = try? CoreDataStack.shared.mainManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
@@ -180,8 +191,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		photos = newPhotos
 		
 		collectionView.reloadData()
-		
-		newCollectionButton.enabled = true
 	}
 	
 	private func deleteExistingPhotosForCurrentPin() {

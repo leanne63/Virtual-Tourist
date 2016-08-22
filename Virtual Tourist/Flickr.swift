@@ -31,7 +31,13 @@ class Flickr {
 		//	only photos uploaded in last 12 hours will be returned
 		methodParameters[FlickrConstants.ParameterKeys.MinDateUploaded] = FlickrConstants.ParameterValues.MinUploadDate
 
-		retrieveImagesFromFlickrBySearch(methodParameters, forPin: pin)
+		// use a queue to run the request in the background
+		let backgroundQueue = NSOperationQueue()
+		backgroundQueue.name = "RetrieveFlickrPhotosQueue"
+		backgroundQueue.addOperationWithBlock {
+			
+			self.retrieveImagesFromFlickrBySearch(methodParameters, forPin: pin)
+		}
 	}
 	
 	
