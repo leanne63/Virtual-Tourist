@@ -40,9 +40,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		subscribeToNotifications()
 		
-		let numPhotosToDisplay = expectedNumberOfPhotos
+		expectedNumberOfPhotos = photos.count
 		
-		if numPhotosToDisplay == 0 {
+		if expectedNumberOfPhotos == 0 {
 			// get new photos
 			retrieveNewPhotosFromFlickr()
 		}
