@@ -20,6 +20,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	
 	// MARK: - Properties (Non-Outlets)
 	
+	let mainContext = CoreDataStack.shared.mainManagedObjectContext
 	var startAnnotation = MKPointAnnotation()
 
 
@@ -62,16 +63,22 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			
 			let request = NSFetchRequest.allPhotosForPin(pin)
 			
-			guard let photos = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Photo] else {
+			guard let photos = try? mainContext.executeFetchRequest(request) as! [Photo] else {
 				
 				print("An error occurred while retrieving photos for selected pin!")
 				return
 			}
 			
 			let destController = segue.destinationViewController as! PhotoAlbumViewController
+			destController.mainContext = mainContext
 			destController.pin = pin
 			destController.photos = photos
 		}
+	}
+	
+	deinit {
+		// unsubscribe us from all notifications we're observing!
+		NSNotificationCenter.defaultCenter().removeObserver(self)
 	}
 	
 	
@@ -104,17 +111,29 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			mapView.removeAnnotation(startAnnotation)
 			
 			// now, store endpoint pin in db
-			var newPin = Pin(context: CoreDataStack.shared.privateManagedObjectContext)
-
-			// += is overloaded for Pin and CLLocationCoordinate2D to add latitude and longitude in one step
-			// (see OperatorOverloads.swift)
-			newPin += endCoordinate
-
-			CoreDataStack.shared.saveContext()
+			let privateMOC = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+			privateMOC.parentContext = mainContext
 			
-			// call Flickr API to retrieve photos for this pin
-			let flickrAPI = Flickr()
-			flickrAPI.getImages(forPin: newPin)
+			privateMOC.performBlock {
+				// create the managed object
+				var newPin = Pin(context: privateMOC)
+
+				// += is overloaded for Pin and CLLocationCoordinate2D to add latitude and longitude in one step
+				// (see OperatorOverloads.swift)
+				newPin += endCoordinate
+				
+				// save the new managed object into its context
+				do {
+					try privateMOC.save()
+				}
+				catch {
+					fatalError("Failure to save context: \(error)")
+				}
+
+				// call Flickr API to retrieve photos for this pin
+				let flickrAPI = Flickr()
+				flickrAPI.getImages(forPin: newPin, withMainContext: self.mainContext)
+			}
 		}
 	}
 	
@@ -131,7 +150,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		let request = NSFetchRequest.allPinsForLocation(location)
 		
 		guard let pinsFound =
-			try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Pin] where pinsFound.count == 1 else {
+			try? mainContext.executeFetchRequest(request) as! [Pin] where pinsFound.count == 1 else {
 				
 				print("Unable to locate selected pin in database!")
 				return
@@ -141,7 +160,45 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	}
 	
 	
+	// MARK: - Observer-Related Methods
+	
+	private func subscribeToNotifications() {
+		
+		/* Managed Object Context notifications */
+		
+		NSNotificationCenter.defaultCenter().addObserver(self,
+		                                                 selector: #selector(managedObjectContextDidSave(_:)),
+		                                                 name: NSManagedObjectContextDidSaveNotification,
+		                                                 object: nil)
+	}
+	
+	
+	func managedObjectContextDidSave(notification: NSNotification) {
+		
+		let notificationContext = notification.object as! NSManagedObjectContext
+		if notificationContext.concurrencyType == .PrivateQueueConcurrencyType {
+			// save the parent via a block
+			mainContext.performBlockAndWait {
+				self.saveTheMainContext()
+			}
+		}
+		else {
+			saveTheMainContext()
+		}
+	}
+
+	
 	// MARK: - Private Utility Functions
+	
+	/// Save the main context
+	private func saveTheMainContext() {
+		
+		do {
+			try mainContext.save()
+		} catch {
+			fatalError("Failure to save context: \(error)")
+		}
+	}
 	
 	/// Store current map region values (center coordinates and span values).
 	private func storeCurrentMapRegion() {
@@ -186,7 +243,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	private func loadMapData() {
 		
 		let request = NSFetchRequest.allPins()
-		guard let pins = try? CoreDataStack.shared.privateManagedObjectContext.executeFetchRequest(request) as! [Pin] else {
+		guard let pins = try? mainContext.executeFetchRequest(request) as! [Pin] else {
 			
 			print("Unable to retrieve pins from database!")
 			return

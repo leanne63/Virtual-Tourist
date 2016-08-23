@@ -7,37 +7,45 @@
 //
 
 import MapKit
+import CoreData
 import SystemConfiguration
 
 /// Provides access to the Flickr API
 class Flickr {
+	
+	// MARK: - Properties
+	
+	var pin: Pin!
+	var mainContext: NSManagedObjectContext!
+	
 	
 	// MARK: - Protected Functions
 	
 	/**
 	Retrieve images from Flickr
 	
-	- parameter forPin: Pin object containing latitude and longitude to search
+	- parameters:
+		- forPin: Pin object containing latitude and longitude to search
+		- withMainContext: NSManagedContext with Main concurrency queue
 	*/
-	func getImages(forPin pin: Pin) {
+	func getImages(forPin pin: Pin, withMainContext mainContext: NSManagedObjectContext) {
+		
+		// passed pin will be on main context
+		self.pin = pin
+		self.mainContext = mainContext
 
 		// get standard parameters
 		var methodParameters: [String: String!] = getStandardParameters()
 
 		// add custom parms for bounding box search
-		methodParameters[FlickrConstants.ParameterKeys.BoundingBox] = bboxString(pin)
+		methodParameters[FlickrConstants.ParameterKeys.BoundingBox] = bboxString()
 
 		// added this parameter to "limit" the geo search; per flickr docs: w/o limiter,
 		//	only photos uploaded in last 12 hours will be returned
 		methodParameters[FlickrConstants.ParameterKeys.MinDateUploaded] = FlickrConstants.ParameterValues.MinUploadDate
 
 		// use a queue to run the request in the background
-		let backgroundQueue = NSOperationQueue()
-		backgroundQueue.name = "RetrieveFlickrPhotosQueue"
-		backgroundQueue.addOperationWithBlock {
-			
-			self.retrieveImagesFromFlickrBySearch(methodParameters, forPin: pin)
-		}
+		retrieveImagesFromFlickrBySearch(methodParameters)
 	}
 	
 	
@@ -57,7 +65,7 @@ class Flickr {
 		return standardParameters
 	}
 	
-	private func bboxString(pin: Pin) -> String {
+	private func bboxString() -> String {
 		
 		// calculate a value higher, lower, left, and right of pin's lon abs(180)/lat abs(90)
 		// -180, -90, 180, 90 are default values if no bbox specified
@@ -95,11 +103,9 @@ class Flickr {
 	/**
 	Retrieves all images for given pin's latitude and longitude.
 	
-	- parameters:
-		- methodParameters: Dictionary of parameters to be used for request.
-		- forPin: Pin object containing latitude and longitude to search.
+	- parameter methodParameters: Dictionary of parameters to be used for request.
 	*/
-	private func retrieveImagesFromFlickrBySearch(methodParameters: [String: AnyObject], forPin pin: Pin) {
+	private func retrieveImagesFromFlickrBySearch(methodParameters: [String: AnyObject]) {
 		
 		let requestURL = flickrURLFromParameters(methodParameters)
 		let request = NSURLRequest(URL: requestURL)
@@ -160,7 +166,8 @@ class Flickr {
 			
 			let randomPageNumber = Int(arc4random_uniform(UInt32(numPages)))
 			
-			self.retrieveImagesFromFlickrBySearch(methodParameters, withPageNumber: randomPageNumber, forPin: pin)
+			self.retrieveImagesFromFlickrBySearch(
+				methodParameters, withPageNumber: randomPageNumber)
 		}
 		
 		task.resume()
@@ -171,11 +178,10 @@ class Flickr {
 	Retrieves images for a given page number within a given pin's latitude and longitude.
 	
 	- parameters:
-	- methodParameters: Dictionary of parameters to be used for request.
-	- withPageNumber: Page number to use for retrieving photo results.
-	- forPin: Pin object containing latitude and longitude to search.
+		- methodParameters: Dictionary of parameters to be used for request.
+		- withPageNumber: Page number to use for retrieving photo results.
 	*/
-	private func retrieveImagesFromFlickrBySearch(methodParameters: [String:AnyObject], withPageNumber page: Int, forPin pin: Pin) {
+	private func retrieveImagesFromFlickrBySearch(methodParameters: [String:AnyObject], withPageNumber page: Int) {
 		
 		// 'var' parameters are deprecated in Swift 2.2, to be removed in Swift 3.0
 		// so, using "shadow" variable here that can be changed later to add the page number
@@ -253,29 +259,36 @@ class Flickr {
 			}
 			
 			// alrighty, then! We've got photos, so let's save them!
-			var numPhotosSaved = 0
-			for photo in photoArray {
-				guard let imageURLString = photo[FlickrConstants.ResponseKeys.MediumURL] as? String else {
-					// if no (or invalid) URL for this photo, just move on to next one
-					continue
-				}
-				
-				// retrieve the image data from the web
-				let imageURL = NSURL(string: imageURLString)
-				guard let imageData = NSData(contentsOfURL: imageURL!) else {
-					// if no (or invalid) imageData found for this photo, just move on to next one
-					continue
-				}
-				
-				// save the image data to the database, associated with the appropriate pin (not using result, so set as '_')
-				let _ = Photo(photo: imageData, pin: pin, context: CoreDataStack.shared.privateManagedObjectContext)
-				
-				numPhotosSaved += 1
-			}
+			let mainMOC = self.mainContext
+			let privateMOC = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+			privateMOC.parentContext = mainMOC
 			
-			if numPhotosSaved > 0 {
-				// save the context
-				CoreDataStack.shared.saveContext()
+			privateMOC.performBlock {
+				for photo in photoArray {
+					guard let imageURLString = photo[FlickrConstants.ResponseKeys.MediumURL] as? String else {
+						// if no (or invalid) URL for this photo, just move on to next one
+						continue
+					}
+					
+					// retrieve the image data from the web
+					let imageURL = NSURL(string: imageURLString)
+					guard let imageData = NSData(contentsOfURL: imageURL!) else {
+						// if no (or invalid) imageData found for this photo, just move on to next one
+						continue
+					}
+					
+					// create a managed object, associated with the appropriate pin (not using result, so set as '_')
+					//	note: pin is in main context; we must use a copy in this private context
+					let managedPin = privateMOC.objectWithID(self.pin.objectID) as! Pin
+					let _ = Photo(photo: imageData, pin: managedPin, context: privateMOC)
+				}
+				
+				// now attempt to save the private managed object context
+				do {
+					try privateMOC.save()
+				} catch {
+					fatalError("Failure to save context: \(error)")
+				}
 			}
 		}
 		

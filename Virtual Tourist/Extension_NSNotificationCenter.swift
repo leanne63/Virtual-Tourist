@@ -15,8 +15,8 @@ extension NSNotificationCenter {
 	Creates and posts a notification to the main thread.
 	
 	- parameters:
-	- notificationName: Notification name to be provided to observers.
-	- userInfo: Dictionary of custom information to be provided to observers, or nil if none needed.
+		- notificationName: Notification name to be provided to observers.
+		- userInfo: Dictionary of custom information to be provided to observers, or nil if none needed.
 	
 	*/
 	class func postNotificationOnMain(notificationName: String, object: AnyObject?, userInfo: [String: AnyObject]?) {
