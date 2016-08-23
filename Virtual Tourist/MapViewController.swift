@@ -16,6 +16,11 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	private let hasLaunchedKey = "hasLaunched"
 	private let photoAlbumSegueID = "mapToPhotoAlbumSegue"
 	private let pinViewReuseIdentifier = "reusablePinView"
+	
+	
+	// MARK: - Properties (Non-Outlets)
+	
+	var startAnnotation = MKPointAnnotation()
 
 
 	// MARK: - Properties (Outlets)
@@ -74,18 +79,31 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 
 	@IBAction func longPressDidOccur(sender: UILongPressGestureRecognizer) {
 		
-		if sender.state == UIGestureRecognizerState.Ended {
+		if sender.state == UIGestureRecognizerState.Began {
+			let longPressStartPoint: CGPoint = sender.locationInView(mapView)
+			let startCoordinate: CLLocationCoordinate2D = mapView.convertPoint(longPressStartPoint, toCoordinateFromView: mapView)
+			
+			// drop new pin (temporary) at this location
+			startAnnotation.coordinate = startCoordinate
+			
+			mapView.addAnnotation(startAnnotation)
+		}
+		
+		if sender.state == UIGestureRecognizerState.Recognized {
 			// get map location of press action
 			let longPressEndPoint: CGPoint = sender.locationInView(mapView)
 			let endCoordinate: CLLocationCoordinate2D = mapView.convertPoint(longPressEndPoint, toCoordinateFromView: mapView)
 		
 			// drop new pin at this location
-			let annotation = MKPointAnnotation()
-			annotation.coordinate = endCoordinate
+			let endAnnotation = MKPointAnnotation()
+			endAnnotation.coordinate = endCoordinate
 			
-			mapView.addAnnotation(annotation)
+			mapView.addAnnotation(endAnnotation)
 			
-			// now, store pin in db
+			// remove the temporary start pin, as we're not saving it
+			mapView.removeAnnotation(startAnnotation)
+			
+			// now, store endpoint pin in db
 			var newPin = Pin(context: CoreDataStack.shared.privateManagedObjectContext)
 
 			// += is overloaded for Pin and CLLocationCoordinate2D to add latitude and longitude in one step
