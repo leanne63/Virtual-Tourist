@@ -111,29 +111,24 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			mapView.removeAnnotation(startAnnotation)
 			
 			// now, store endpoint pin in db
-			let privateMOC = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-			privateMOC.parentContext = mainContext
+			// create the managed object
+			var newPin = Pin(context: mainContext)
+
+			// += is overloaded for Pin and CLLocationCoordinate2D to add latitude and longitude in one step
+			// (see OperatorOverloads.swift)
+			newPin += endCoordinate
 			
-			privateMOC.performBlock {
-				// create the managed object
-				var newPin = Pin(context: privateMOC)
-
-				// += is overloaded for Pin and CLLocationCoordinate2D to add latitude and longitude in one step
-				// (see OperatorOverloads.swift)
-				newPin += endCoordinate
-				
-				// save the new managed object into its context
-				do {
-					try privateMOC.save()
-				}
-				catch {
-					fatalError("Failure to save context: \(error)")
-				}
-
-				// call Flickr API to retrieve photos for this pin
-				let flickrAPI = Flickr()
-				flickrAPI.getImages(forPin: newPin, withMainContext: self.mainContext)
+			// save the new managed object into its context
+			do {
+				try mainContext.save()
 			}
+			catch {
+				fatalError("Failure to save context: \(error)")
+			}
+
+			// call Flickr API to retrieve photos for this pin
+			let flickrAPI = Flickr()
+			flickrAPI.getImages(forPin: newPin, withMainContext: mainContext)
 		}
 	}
 	
@@ -175,30 +170,19 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
 		
-		let notificationContext = notification.object as! NSManagedObjectContext
-		if notificationContext.concurrencyType == .PrivateQueueConcurrencyType {
-			// save the parent via a block
+		if mainContext.hasChanges {
 			mainContext.performBlockAndWait {
-				self.saveTheMainContext()
+				do {
+					try self.mainContext.save()
+				} catch {
+					fatalError("Failure to save context: \(error)")
+				}
 			}
-		}
-		else {
-			saveTheMainContext()
 		}
 	}
 
 	
 	// MARK: - Private Utility Functions
-	
-	/// Save the main context
-	private func saveTheMainContext() {
-		
-		do {
-			try mainContext.save()
-		} catch {
-			fatalError("Failure to save context: \(error)")
-		}
-	}
 	
 	/// Store current map region values (center coordinates and span values).
 	private func storeCurrentMapRegion() {

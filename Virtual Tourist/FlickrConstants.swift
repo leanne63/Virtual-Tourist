@@ -43,8 +43,8 @@ struct FlickrConstants {
 		
 		static let NumPhotosToBeSavedKey = "NumPhotosToBeSaved"
 		
-		static let PhotoRetrievalDidFailNotification = "PhotoRetrievalDidFailNotification"
 		static let PhotosWillSaveNotification = "PhotosWillSaveNotification"
+		static let PhotoRetrievalDidFailNotification = "PhotoRetrievalDidFailNotification"
 	}
 	
 	// MARK: Flickr Parameter Keys

@@ -150,15 +150,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
 		
-		let notificationContext = notification.object as! NSManagedObjectContext
-		if notificationContext.concurrencyType == .PrivateQueueConcurrencyType {
-			// save the parent via a block
+		if mainContext.hasChanges {
 			mainContext.performBlockAndWait {
-				self.saveTheMainContext()
+				do {
+					try self.mainContext.save()
+				} catch {
+					fatalError("Failure to save context: \(error)")
+				}
 			}
-		}
-		else {
-			saveTheMainContext()
 		}
 	}
 	
@@ -176,16 +175,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	
 	// MARK: - Private Functions
-	
-	/// Save the main context
-	private func saveTheMainContext() {
-		
-		do {
-			try self.mainContext.save()
-		} catch {
-			fatalError("Failure to save context: \(error)")
-		}
-	}
 	
 	private func retrieveNewPhotosFromFlickr() {
 		
