@@ -258,12 +258,28 @@ class Flickr {
 				return
 			}
 			
+			// TODO: remove any existing photos for this pin
+			let fetchRequest = NSFetchRequest.allPhotosForPin(self.pin)
+			do {
+				let previousPhotos: [Photo] = try self.mainContext.executeFetchRequest(fetchRequest) as! [Photo]
+				if previousPhotos.count > 0 {
+					// delete them
+					print("NOTHING")
+				}
+			}
+			catch {
+				print("Error with previous photo retrieval request: \(error)")
+			}
+			
 			// alrighty, then! We've got photos, so let's save them!
 			let mainMOC = self.mainContext
 			let privateMOC = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
 			privateMOC.parentContext = mainMOC
 			
 			privateMOC.performBlock {
+				//	note: pin is in main context; we must use a copy in this private context
+				let managedPin = privateMOC.objectWithID(self.pin.objectID) as! Pin
+
 				for photo in photoArray {
 					guard let imageURLString = photo[FlickrConstants.ResponseKeys.MediumURL] as? String else {
 						// if no (or invalid) URL for this photo, just move on to next one
@@ -278,8 +294,6 @@ class Flickr {
 					}
 					
 					// create a managed object, associated with the appropriate pin (not using result, so set as '_')
-					//	note: pin is in main context; we must use a copy in this private context
-					let managedPin = privateMOC.objectWithID(self.pin.objectID) as! Pin
 					let _ = Photo(photo: imageData, pin: managedPin, context: privateMOC)
 				}
 				

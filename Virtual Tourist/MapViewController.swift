@@ -62,7 +62,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			let pin = sender as! Pin
 			
 			let request = NSFetchRequest.allPhotosForPin(pin)
-			
 			guard let photos = try? mainContext.executeFetchRequest(request) as! [Photo] else {
 				
 				print("An error occurred while retrieving photos for selected pin!")

@@ -21,7 +21,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	var mainContext: NSManagedObjectContext!
 	var pin: Pin!
 	var photos: [Photo]!
-	var expectedNumberOfPhotos: Int = 0
+	
+	var expectedNumberOfPhotos: Int = FlickrConstants.Defaults.NumberOfPhotos
 	
 	
 	// MARK: - Outlets
@@ -41,9 +42,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		subscribeToNotifications()
 		
-		expectedNumberOfPhotos = photos.count
-		
-		if expectedNumberOfPhotos == 0 {
+		if photos.count == 0 {
 			// get new photos
 			retrieveNewPhotosFromFlickr()
 		}
