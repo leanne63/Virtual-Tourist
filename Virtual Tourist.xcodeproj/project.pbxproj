@@ -197,11 +197,11 @@
 			isa = PBXGroup;
 			children = (
 				D59C88F81D41591100620064 /* Virtual_Tourist.xcdatamodeld */,
+				D52938B11D48103C003CCD2A /* CoreDataStack.swift */,
 				D5C321A21D56B20600677C11 /* Pin.swift */,
 				D5C321A41D56B20600677C11 /* Photo.swift */,
 				D5C321A11D56B20600677C11 /* Pin+CoreDataProperties.swift */,
 				D5C321A31D56B20600677C11 /* Photo+CoreDataProperties.swift */,
-				D52938B11D48103C003CCD2A /* CoreDataStack.swift */,
 				D592243E1D44090A000D644B /* MapModel.swift */,
 				D5DCB9BF1D5E46750083E26B /* FlickrConstants.swift */,
 				D5DCB9BE1D5E46750083E26B /* Flickr.swift */,

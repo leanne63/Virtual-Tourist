@@ -20,7 +20,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	
 	// MARK: - Properties (Non-Outlets)
 	
-	let mainContext = CoreDataStack.shared.mainManagedObjectContext
 	var startAnnotation = MKPointAnnotation()
 
 
@@ -56,22 +55,22 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			return
 		}
 		
-		// if we're going to the photo album, pass the Pin object whose selection initiated this segue call
+		// if we're going to the photo album, pass the pin matching the annotation view that initiated this segue
 		if segueId == photoAlbumSegueID {
 
-			let pin = sender as! Pin
+			let location = (sender as! MKAnnotationView).annotation!.coordinate
+			let pinRequest = NSFetchRequest.allPinsForLocation(location)
 			
-			let request = NSFetchRequest.allPhotosForPin(pin)
-			guard let photos = try? mainContext.executeFetchRequest(request) as! [Photo] else {
-				
-				print("An error occurred while retrieving photos for selected pin!")
-				return
+			let mainContext = CoreDataStack.shared.mainManagedObjectContext
+			guard let pinsFound =
+				try? mainContext.executeFetchRequest(pinRequest) as! [Pin] where pinsFound.count == 1 else {
+					
+					print("Unable to locate selected pin in database!")
+					return
 			}
 			
 			let destController = segue.destinationViewController as! PhotoAlbumViewController
-			destController.mainContext = mainContext
-			destController.pin = pin
-			destController.photos = photos
+			destController.pin = pinsFound[0]
 		}
 	}
 	
@@ -111,23 +110,19 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			
 			// now, store endpoint pin in db
 			// create the managed object
+			let mainContext = CoreDataStack.shared.mainManagedObjectContext
 			var newPin = Pin(context: mainContext)
 
 			// += is overloaded for Pin and CLLocationCoordinate2D to add latitude and longitude in one step
 			// (see OperatorOverloads.swift)
 			newPin += endCoordinate
 			
-			// save the new managed object into its context
-			do {
-				try mainContext.save()
-			}
-			catch {
-				fatalError("Failure to save context: \(error)")
-			}
+			// commit the new pin to the store
+			CoreDataStack.shared.saveContext()
 
 			// call Flickr API to retrieve photos for this pin
 			let flickrAPI = Flickr()
-			flickrAPI.getImages(forPin: newPin, withMainContext: mainContext)
+			flickrAPI.getImages(forPin: newPin)
 		}
 	}
 	
@@ -140,46 +135,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		
 		storeCurrentMapRegion()
 		
-		let location = view.annotation!.coordinate
-		let request = NSFetchRequest.allPinsForLocation(location)
-		
-		guard let pinsFound =
-			try? mainContext.executeFetchRequest(request) as! [Pin] where pinsFound.count == 1 else {
-				
-				print("Unable to locate selected pin in database!")
-				return
-		}
-		
-		performSegueWithIdentifier(photoAlbumSegueID, sender: pinsFound[0])
+		performSegueWithIdentifier(photoAlbumSegueID, sender: view)
 	}
 	
-	
-	// MARK: - Observer-Related Methods
-	
-	private func subscribeToNotifications() {
-		
-		/* Managed Object Context notifications */
-		
-		NSNotificationCenter.defaultCenter().addObserver(self,
-		                                                 selector: #selector(managedObjectContextDidSave(_:)),
-		                                                 name: NSManagedObjectContextDidSaveNotification,
-		                                                 object: nil)
-	}
-	
-	
-	func managedObjectContextDidSave(notification: NSNotification) {
-		
-		if mainContext.hasChanges {
-			mainContext.performBlockAndWait {
-				do {
-					try self.mainContext.save()
-				} catch {
-					fatalError("Failure to save context: \(error)")
-				}
-			}
-		}
-	}
-
 	
 	// MARK: - Private Utility Functions
 	
@@ -225,6 +183,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	/// Loads pins from database.
 	private func loadMapData() {
 		
+		let mainContext = CoreDataStack.shared.mainManagedObjectContext
 		let request = NSFetchRequest.allPins()
 		guard let pins = try? mainContext.executeFetchRequest(request) as! [Pin] else {
 			

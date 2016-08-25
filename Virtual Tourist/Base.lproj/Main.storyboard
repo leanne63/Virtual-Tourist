@@ -102,7 +102,7 @@
                                 <rect key="frame" x="0.0" y="570" width="600" height="30"/>
                                 <state key="normal" title="New Collection"/>
                                 <connections>
-                                    <action selector="retrieveNewPhotos:" destination="y08-jC-lpc" eventType="touchUpInside" id="dVx-HH-T5S"/>
+                                    <action selector="newCollectionButtonPressed:" destination="y08-jC-lpc" eventType="touchUpInside" id="8qG-G4-Gnp"/>
                                 </connections>
                             </button>
                         </subviews>

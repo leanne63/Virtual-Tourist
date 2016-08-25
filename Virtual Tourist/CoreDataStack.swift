@@ -61,27 +61,47 @@ class CoreDataStack {
 	}()
 	
 	lazy var mainManagedObjectContext: NSManagedObjectContext = {
-		// Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.) This property is optional since there are legitimate error conditions that could cause the creation of the context to fail.
+
 		let coordinator = self.persistentStoreCoordinator
 		var managedObjectContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
 		managedObjectContext.persistentStoreCoordinator = coordinator
+		
 		return managedObjectContext
 	}()
 	
+	lazy var privateManagedObjectContext: NSManagedObjectContext = {
+
+		var managedObjectContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+		managedObjectContext.parentContext = CoreDataStack.shared.mainManagedObjectContext
+		
+		return managedObjectContext
+	}()
+	
+
 	// MARK: - Core Data Saving support
 	
 	func saveContext () {
 		if mainManagedObjectContext.hasChanges {
 			do {
 				try mainManagedObjectContext.save()
+				print("***** mainManagedObjectContext SAVED *****")
 			} catch {
-				// Replace this implementation with code to handle the error appropriately.
-				// abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
 				let nserror = error as NSError
 				NSLog("Unresolved error \(nserror), \(nserror.userInfo)")
-				abort()
 			}
 		}
+	}
+	
+	
+	// TODO: use for testing
+	func dropAllData() throws{
+		// delete all the objects in the db. This won't delete the files, it will
+		// just leave empty tables.
+		let dbURL = self.applicationDocumentsDirectory.URLByAppendingPathComponent("Virtual_Tourist.sqlite")
+		
+		try persistentStoreCoordinator.destroyPersistentStoreAtURL(dbURL, withType:NSSQLiteStoreType , options: nil)
+		
+		try persistentStoreCoordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: dbURL, options: nil)		
 	}
 	
 }

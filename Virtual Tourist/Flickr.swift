@@ -16,7 +16,6 @@ class Flickr {
 	// MARK: - Properties
 	
 	var pin: Pin!
-	var mainContext: NSManagedObjectContext!
 	
 	
 	// MARK: - Protected Functions
@@ -28,11 +27,10 @@ class Flickr {
 		- forPin: Pin object containing latitude and longitude to search
 		- withMainContext: NSManagedContext with Main concurrency queue
 	*/
-	func getImages(forPin pin: Pin, withMainContext mainContext: NSManagedObjectContext) {
+	func getImages(forPin pin: Pin) {
 		
 		// passed pin will be on main context
 		self.pin = pin
-		self.mainContext = mainContext
 
 		// get standard parameters
 		var methodParameters: [String: String!] = getStandardParameters()
@@ -258,27 +256,15 @@ class Flickr {
 				return
 			}
 			
-			// TODO: remove any existing photos for this pin
-			let fetchRequest = NSFetchRequest.allPhotosForPin(self.pin)
-			do {
-				let previousPhotos: [Photo] = try self.mainContext.executeFetchRequest(fetchRequest) as! [Photo]
-				if previousPhotos.count > 0 {
-					// delete them
-					print("NOTHING")
+			// alrighty, then! We've got photos, so let's save them as managed objects!
+			// BUT, we're on a background thread, so save the photos via a private queue OFF the main context
+			let privateContext = CoreDataStack.shared.privateManagedObjectContext
+			privateContext.performBlock {
+				//	note: current pin is in main context; we must use a copy retrieved via this private context
+				guard let managedPin = try? privateContext.existingObjectWithID(self.pin.objectID) as! Pin else {
+					print("The pin wasn't found in the database")
+					return
 				}
-			}
-			catch {
-				print("Error with previous photo retrieval request: \(error)")
-			}
-			
-			// alrighty, then! We've got photos, so let's save them!
-			let mainMOC = self.mainContext
-			let privateMOC = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-			privateMOC.parentContext = mainMOC
-			
-			privateMOC.performBlock {
-				//	note: pin is in main context; we must use a copy in this private context
-				let managedPin = privateMOC.objectWithID(self.pin.objectID) as! Pin
 
 				for photo in photoArray {
 					guard let imageURLString = photo[FlickrConstants.ResponseKeys.MediumURL] as? String else {
@@ -294,14 +280,20 @@ class Flickr {
 					}
 					
 					// create a managed object, associated with the appropriate pin (not using result, so set as '_')
-					let _ = Photo(photo: imageData, pin: managedPin, context: privateMOC)
+					let _ = Photo(photo: imageData, pin: managedPin, context: privateContext)
 				}
 				
 				// now attempt to save the private managed object context
-				do {
-					try privateMOC.save()
-				} catch {
-					fatalError("Failure to save context: \(error)")
+				if privateContext.hasChanges {
+					do {
+						try privateContext.save()
+						print("*** private context SAVED ***")
+					} catch {
+						fatalError("Failure to save context: \(error)")
+					}
+					
+					// then save the parent context, so the changes will be committed to the store
+					CoreDataStack.shared.saveContext()
 				}
 			}
 		}

@@ -18,7 +18,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	// MARK: - Properties (non-outlets)
 	
-	var mainContext: NSManagedObjectContext!
 	var pin: Pin!
 	var photos: [Photo]!
 	
@@ -42,8 +41,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		subscribeToNotifications()
 		
+		retrievePhotosFromDB()
+		
 		if photos.count == 0 {
-			// get new photos
 			retrieveNewPhotosFromFlickr()
 		}
     }
@@ -139,7 +139,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		NSNotificationCenter.defaultCenter().addObserver(self,
 		                                                 selector: #selector(managedObjectContextDidSave(_:)),
 		                                                 name: NSManagedObjectContextDidSaveNotification,
-		                                                 object: nil)
+		                                                 object: CoreDataStack.shared.mainManagedObjectContext)
 	}
 	
 	func photosWillSave(notification: NSNotification) {
@@ -149,25 +149,25 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
 		
-		if mainContext.hasChanges {
-			mainContext.performBlockAndWait {
-				do {
-					try self.mainContext.save()
-				} catch {
-					fatalError("Failure to save context: \(error)")
-				}
-			}
-		}
+//		if mainContext.hasChanges {
+//			mainContext.performBlockAndWait {
+//				do {
+//					try self.mainContext.save()
+//				} catch {
+//					fatalError("Failure to save context: \(error)")
+//				}
+//			}
+//		}
 	}
 	
 	
 	// MARK: - Actions
 	
-	@IBAction func retrieveNewPhotos(sender: UIButton) {
+	@IBAction func newCollectionButtonPressed(sender: UIButton) {
 		
 		newCollectionButton.enabled = false
 		
-		deleteExistingPhotosForCurrentPin()
+		deleteAllExistingPhotosForCurrentPin()
 		
 		retrieveNewPhotosFromFlickr()
 	}
@@ -178,28 +178,43 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	private func retrieveNewPhotosFromFlickr() {
 		
 		let flickrAPI = Flickr()
-		flickrAPI.getImages(forPin: pin, withMainContext: mainContext)
+		flickrAPI.getImages(forPin: pin)
 	}
 	
-	private func retrieveExistingPhotosForDisplay() {
-		
-		let request = NSFetchRequest.allPhotosForPin(pin)
-		
-		guard let newPhotos = try? mainContext.executeFetchRequest(request) as! [Photo] else {
+	private func retrievePhotosFromDB() {
+		// retrieve any photos related to the pin
+		let mainContext = CoreDataStack.shared.mainManagedObjectContext
+		let photoRequest = NSFetchRequest.allPhotosForPin(pin)
+		guard let photosFromDB = try? mainContext.executeFetchRequest(photoRequest) as! [Photo] else {
 			
 			print("An error occurred while retrieving photos for selected pin!")
 			return
 		}
 		
-		photos = newPhotos
-		
-		collectionView.reloadData()
+		photos = photosFromDB
 	}
 	
-	private func deleteExistingPhotosForCurrentPin() {
+	private func deletePhotoAtRow(row: Int) {
 		
+		let mainContext = CoreDataStack.shared.mainManagedObjectContext
+		
+		let photoToDeleteID = photos[row].objectID
+		guard let managedPhoto = try? mainContext.existingObjectWithID(photoToDeleteID) else {
+			print("Unable to locate selected photo in database!")
+			return
+		}
+		
+		mainContext.deleteObject(managedPhoto)
+		
+		CoreDataStack.shared.saveContext()
+		
+		photos.removeAtIndex(row)
+	}
+	
+	private func deleteAllExistingPhotosForCurrentPin() {
+		
+		let mainContext = CoreDataStack.shared.mainManagedObjectContext
 		let request = NSFetchRequest.allPhotosForPin(pin)
-		
 		guard let photosToDelete = try? mainContext.executeFetchRequest(request) as! [Photo] else {
 			
 			print("An error occurred while retrieving photos for selected pin!")
@@ -210,31 +225,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 			mainContext.deleteObject(photo)
 		}
 		
-		do {
-			try mainContext.save()
-		}
-		catch {
-			fatalError("Failure to save context: \(error)")
-		}
-	}
-	
-	private func deletePhotoAtRow(row: Int) {
-		
-		// TODO: fix this delete (do we have a fetch request extension for a single photo? make one, if not)
-		let photoToDelete = photos[row]
-		//let managedPhoto = mainContext.objectWithID(photoToDelete.objectID)
-		
-		//mainContext.deleteObject(managedPhoto)
-		mainContext.deleteObject(photoToDelete)
-
-		do {
-			try mainContext.save()
-		}
-		catch {
-			fatalError("Failure to save context: \(error)")
-		}
-		
-		photos.removeAtIndex(row)
+		CoreDataStack.shared.saveContext()
 	}
 	
 	
