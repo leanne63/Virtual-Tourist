@@ -246,7 +246,8 @@ class Flickr {
 			}
 			
 			// notify observers of photo count
-			userInfo = [FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey : photoArray.count]
+			let numPhotosToBeSaved = photoArray.count
+			userInfo = [FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey : numPhotosToBeSaved]
 			NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotosWillSaveNotification, object: nil, userInfo: userInfo)
 
 			
@@ -281,19 +282,20 @@ class Flickr {
 					
 					// create a managed object, associated with the appropriate pin (not using result, so set as '_')
 					let _ = Photo(photo: imageData, pin: managedPin, context: privateContext)
-				}
-				
-				// now attempt to save the private managed object context
-				if privateContext.hasChanges {
-					do {
-						try privateContext.save()
-						print("*** private context SAVED ***")
-					} catch {
-						fatalError("Failure to save context: \(error)")
-					}
 					
-					// then save the parent context, so the changes will be committed to the store
-					CoreDataStack.shared.saveContext()
+					// now attempt to save the private managed object context
+					if privateContext.hasChanges {
+						do {
+							try privateContext.save()
+						} catch {
+							fatalError("Failure to save context: \(error)")
+						}
+						
+						// then save the parent (main) context, so the changes will be committed to the store
+						NSOperationQueue.mainQueue().addOperationWithBlock {
+							CoreDataStack.shared.saveContext()
+						}
+					}
 				}
 			}
 		}

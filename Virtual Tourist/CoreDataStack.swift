@@ -84,7 +84,6 @@ class CoreDataStack {
 		if mainManagedObjectContext.hasChanges {
 			do {
 				try mainManagedObjectContext.save()
-				print("***** mainManagedObjectContext SAVED *****")
 			} catch {
 				let nserror = error as NSError
 				NSLog("Unresolved error \(nserror), \(nserror.userInfo)")
