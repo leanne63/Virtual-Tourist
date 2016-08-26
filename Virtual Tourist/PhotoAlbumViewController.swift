@@ -140,6 +140,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		let arrayRow = indexPath.item
 		deletePhotoAtRow(arrayRow)
+		
+		collectionView.deleteItemsAtIndexPaths([indexPath])
 	}
 
 	
