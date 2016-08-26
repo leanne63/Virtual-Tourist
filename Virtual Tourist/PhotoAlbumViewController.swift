@@ -91,7 +91,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		}
 		else {
 			// if we're not requesting new photos (array is filled),
-			//	OR we're requesting new photos, and are reloading current cells (index row == rec'd photos - 1)
+			//	OR we're requesting new photos, and are reloading cells
 		
 			// check for an activity indicator from last time through; if there, stop animating/hide it
 			if let backgroundView = cell.backgroundView as? UIActivityIndicatorView {
@@ -107,45 +107,26 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 			// if we're on the last photo, re-enable the "new collection" button
 			let isLastItem =
 				(requestingNewPhotos && indexPath.item == expectedNumPhotos - 1) ||
-					(!requestingNewPhotos && indexPath.item == photos.count - 1)
+				(!requestingNewPhotos && indexPath.item == photos.count - 1)
 			if isLastItem {
 				requestingNewPhotos = false
 				newCollectionButton.enabled = true
+				
+				// check for, and remove, any excess cells (eg, when actual count less than default count)
+				let itemsCount: Int = collectionView.numberOfItemsInSection(0)
+				let excessItemsStartIndex: Int = indexPath.item + 1
+				if  itemsCount > excessItemsStartIndex {
+					var indexPathArray = [NSIndexPath]()
+					for excessItem in excessItemsStartIndex..<itemsCount {
+						let indexPath = NSIndexPath(forItem: excessItem, inSection: 0)
+						indexPathArray.append(indexPath)
+					}
+					collectionView.deleteItemsAtIndexPaths(indexPathArray)
+				}
 			}
 		}
-		
-		/*
-		let numPhotos = photos.count
-		if numPhotos > 0 && indexPath.item < numPhotos {
-			// check for an activity indicator from last time through; if there, stop animating/hide it
-			if let backgroundView = cell.backgroundView as? UIActivityIndicatorView {
-				backgroundView.stopAnimating()
-			}
-			
-			// put the photo in place
-			let imageData: NSData = photos[indexPath.item].photo!
-			
-			cellImageView.image = UIImage(data: imageData)
-			cellImageView.hidden = false
 
-			// if we're on the last photo, re-enable the "new collection" button
-			if indexPath.item == numPhotos - 1 {
-				newCollectionButton.enabled = true
-			}
-		}
-		else {
-			// otherwise, place an activity indicator in the cell to note photos are coming!
-			cellImageView.hidden = true
-			
-			let activityIndicator = UIActivityIndicatorView()
-			activityIndicator.activityIndicatorViewStyle = .WhiteLarge
-			activityIndicator.hidesWhenStopped = true
-			
-			cell.backgroundView = activityIndicator
-			activityIndicator.startAnimating()
-		}
-		*/
-        return cell
+		return cell
     }
 
     // MARK: - UICollectionViewDelegate
@@ -193,27 +174,25 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
 		
-		// TODO: what if user changes from pin quickly? Will notifications come here? Likely...
-		
 		// received notice that main managed object has saved; so reload a cell with its new photo
 		if requestingNewPhotos {
-			guard let userInfo = notification.userInfo, let insertedPhotos = userInfo[NSInsertedObjectsKey] else {
-				print("No user info found for managed object context!")
-				return
+			guard let userInfo = notification.userInfo, let insertedObjects = userInfo[NSInsertedObjectsKey]
+				where insertedObjects.count > 0 else {
+					// we only care about inserted items in this controller
+					return
 			}
 
 			// retrieve the inserted photo from this save event
-			let insertedPhoto = insertedPhotos.allObjects.first as! Photo
+			let insertedPhoto = insertedObjects.allObjects.first as! Photo
 
-			// add new photo to array
+			// add new photo to array (which was cleared when we requested new photos)
 			photos.append(insertedPhoto)
 
 			// now load the photo into its corresponding collection view cell
-			let photoIndex = photos.count - 1
-			let cellIndex = NSIndexPath(forItem: photoIndex, inSection: 0)
+			let thisPhotoIndex = photos.count - 1
+			let cellIndex = NSIndexPath(forItem: thisPhotoIndex, inSection: 0)
 
 			collectionView.reloadItemsAtIndexPaths([cellIndex])
-			
 		}
 	}
 	
@@ -222,11 +201,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	@IBAction func newCollectionButtonPressed(sender: UIButton) {
 		
+		requestingNewPhotos = true
 		newCollectionButton.enabled = false
 		
 		deleteAllPhotosForCurrentPin()
 		
-		requestingNewPhotos = true
+		// reload the view with indicators of coming photos
+		collectionView.reloadData()
+		
 		retrieveNewPhotosFromFlickr()
 	}
 	
@@ -272,8 +254,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		photos.removeAtIndex(row)
 	}
 	
+	/// Deletes photos from Core Data, and removes photos from controller's photo array
 	private func deleteAllPhotosForCurrentPin() {
 		
+		// delete photos from Core Data
 		let mainContext = CoreDataStack.shared.mainManagedObjectContext
 		let request = NSFetchRequest.allPhotosForPin(pin)
 		guard let photosToDelete = try? mainContext.executeFetchRequest(request) as! [Photo] else {
