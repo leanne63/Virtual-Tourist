@@ -167,9 +167,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		// set the expected number of photos to allow for placeholders
 		expectedNumPhotos = notification.userInfo![FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey] as! Int
-//		
-//		// reload the collection view so it'll have placeholder cells ready to be loaded with the actual photos as they come in
-//		collectionView.reloadData()
 	}
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
