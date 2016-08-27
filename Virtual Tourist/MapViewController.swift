@@ -21,6 +21,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	// MARK: - Properties (Non-Outlets)
 	
 	var startAnnotation = MKPointAnnotation()
+	var photoDownloadInProgress = false
+	//var pinForPhotosInProgress: Pin?
 
 
 	// MARK: - Properties (Outlets)
@@ -34,6 +36,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		super.viewDidLoad()
 		
 		mapView.delegate = self
+		
+		subscribeToNotifications()
 		
 		let hasLaunchedPreviously: Bool = NSUserDefaults.standardUserDefaults().boolForKey(hasLaunchedKey)
 		if !hasLaunchedPreviously {
@@ -71,6 +75,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			
 			let destController = segue.destinationViewController as! PhotoAlbumViewController
 			destController.pin = pinsFound[0]
+			destController.waitingForPhotos = photoDownloadInProgress
+			//destController.pinForPhotosInProgress = pinForPhotosInProgress
 		}
 	}
 	
@@ -121,6 +127,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			CoreDataStack.shared.saveContext()
 
 			// call Flickr API to retrieve photos for this pin
+			photoDownloadInProgress = true
+			//pinForPhotosInProgress = newPin
 			let flickrAPI = Flickr()
 			flickrAPI.getImages(forPin: newPin)
 		}
@@ -138,6 +146,29 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		performSegueWithIdentifier(photoAlbumSegueID, sender: view)
 	}
 	
+	
+	// MARK: - Observer-Related Methods
+	
+	private func subscribeToNotifications() {
+		
+		/* custom app-specific notifications */
+		
+		NSNotificationCenter.defaultCenter().addObserver(self,
+		                                                 selector: #selector(photosDidSave(_:)),
+		                                                 name: FlickrConstants.Notifications.PhotosDidSaveNotification,
+		                                                 object: nil)
+		
+	}
+	
+	func photosDidSave(notification: NSNotification) {
+		
+		// photos saved, so clear out the "pin in progress" value
+		photoDownloadInProgress = false
+//		let pinForSavedPhotos = notification.userInfo![FlickrConstants.Notifications.PinForSavedPhotosKey] as! Pin
+//		if pinForSavedPhotos == pinForPhotosInProgress {
+//			pinForPhotosInProgress = nil
+//		}
+	}
 	
 	// MARK: - Private Utility Functions
 	
