@@ -25,7 +25,6 @@
 		D5C321A71D56B20600677C11 /* Photo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A31D56B20600677C11 /* Photo+CoreDataProperties.swift */; };
 		D5C321A81D56B20600677C11 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321A41D56B20600677C11 /* Photo.swift */; };
 		D5C321D31D5A5E7000677C11 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C321D21D5A5E7000677C11 /* PhotoAlbumViewController.swift */; };
-		D5DCB9BC1D5E46390083E26B /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D5DCB9BA1D5E46390083E26B /* Info.plist */; };
 		D5DCB9BD1D5E46390083E26B /* Virtual_TouristTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9BB1D5E46390083E26B /* Virtual_TouristTests.swift */; };
 		D5DCB9C01D5E46750083E26B /* Flickr.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9BE1D5E46750083E26B /* Flickr.swift */; };
 		D5DCB9C11D5E46750083E26B /* FlickrConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DCB9BF1D5E46750083E26B /* FlickrConstants.swift */; };
@@ -332,7 +331,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D5DCB9BC1D5E46390083E26B /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
