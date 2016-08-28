@@ -258,14 +258,12 @@ class Flickr {
 			
 			// using performBlockAndWait to ensure that all photo saving occurs in order; otherwise, collection view gets confused ;)
 			privateContext.performBlockAndWait {
-				print("***** \(#function) : privateContext.performBlockAndWait *****")
-				print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
-				
 				
 				// notify observers of photo count
 				let numPhotosToBeSaved = photoArray.count
 				userInfo = [FlickrConstants.Notifications.NumPhotosToBeSavedKey : numPhotosToBeSaved]
-				NSNotificationCenter.postNotificationOnMain(FlickrConstants.Notifications.PhotosWillSaveNotification, object: nil, userInfo: userInfo)
+				NSNotificationCenter.postNotificationOnMain(
+					FlickrConstants.Notifications.PhotosWillSaveNotification, object: nil, userInfo: userInfo)
 				
 				//	note: current pin is in main context; we must use a copy retrieved via this private context
 				guard let managedPin = try? privateContext.existingObjectWithID(self.pin.objectID) as! Pin else {

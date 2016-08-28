@@ -43,9 +43,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     override func viewDidLoad() {
         super.viewDidLoad()
 		
-		print("***** \(#function) *****")
-		print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
-		
 		collectionView!.delegate = self
 		
 		subscribeToNotifications()
@@ -75,9 +72,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
-		print("***** \(#function) *****")
-		print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
-		
 		let actualNumPhotos = photos.count
 		let numItems = (requestingNewPhotos) ? expectedNumPhotos : actualNumPhotos
 		
@@ -86,9 +80,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 
 	func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
 
-		print("***** \(#function) *****")
-		print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
-		
 		let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath)
 
 		let cellImageView = cell.viewWithTag(1) as! UIImageView
@@ -190,28 +181,21 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	}
 	
 	func photosWillSave(notification: NSNotification) {
-		print("***** \(#function) *****")
-		print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
-		
 		
 		// set the expected number of photos to allow for placeholders
 		expectedNumPhotos = notification.userInfo![FlickrConstants.Notifications.NumPhotosToBeSavedKey] as! Int
 	}
 	
 	func photosDidSave(notification: NSNotification) {
-		print("***** PHOTO ALBUM: \(#function) *****")
-		print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
 		
-		
-		waitingForPhotos = false
-		loadPhotos()
-		collectionView.reloadData()
+		if waitingForPhotos {
+			waitingForPhotos = false
+			loadPhotos()
+			collectionView.reloadData()
+		}
 	}
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
-		print("***** \(#function) *****")
-		print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
-		
 		
 		// received notice that main managed object has saved; so reload a cell with its new photo
 		if requestingNewPhotos {
