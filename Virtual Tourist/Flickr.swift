@@ -245,12 +245,6 @@ class Flickr {
 					return
 			}
 			
-			// notify observers of photo count
-			let numPhotosToBeSaved = photoArray.count
-			userInfo = [FlickrConstants.Notifications.NumPhotosToBeSavedKey : numPhotosToBeSaved]
-			NSNotificationCenter.postNotificationOnMain(FlickrConstants.Notifications.PhotosWillSaveNotification, object: nil, userInfo: userInfo)
-
-			
 			// if no photos were retrieved, we don't need to save anything, so just return
 			guard photoArray.count > 0  else {
 				
@@ -258,10 +252,21 @@ class Flickr {
 			}
 			
 			// alrighty, then! We've got photos, so let's save them as managed objects!
-			// BUT, we're on a background thread, so save the photos via a private queue OFF the main context
+			//	BUT, we're on a background thread, so save the photos via a private queue OFF the main thread;
+			//	then, move them to the store via the main queue
 			let privateContext = CoreDataStack.shared.privateManagedObjectContext
 			
-			privateContext.performBlock {
+			// using performBlockAndWait to ensure that all photo saving occurs in order; otherwise, collection view gets confused ;)
+			privateContext.performBlockAndWait {
+				print("***** \(#function) : privateContext.performBlockAndWait *****")
+				print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
+				
+				
+				// notify observers of photo count
+				let numPhotosToBeSaved = photoArray.count
+				userInfo = [FlickrConstants.Notifications.NumPhotosToBeSavedKey : numPhotosToBeSaved]
+				NSNotificationCenter.postNotificationOnMain(FlickrConstants.Notifications.PhotosWillSaveNotification, object: nil, userInfo: userInfo)
+				
 				//	note: current pin is in main context; we must use a copy retrieved via this private context
 				guard let managedPin = try? privateContext.existingObjectWithID(self.pin.objectID) as! Pin else {
 					print("The pin wasn't found in the database")
@@ -300,7 +305,7 @@ class Flickr {
 					}
 				}
 				
-				// notify observers that photo save has completed
+				// notify observers that photo save has completed (all photos have been saved)
 				let userInfo = [FlickrConstants.Notifications.PinForSavedPhotosKey: self.pin]
 				NSNotificationCenter.postNotificationOnMain(
 					FlickrConstants.Notifications.PhotosDidSaveNotification, object: self, userInfo: userInfo)

@@ -158,6 +158,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	}
 	
 	func photosDidSave(notification: NSNotification) {
+		print("***** MAP VIEW: \(#function) *****")
+		print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
+		
 		
 		// photos saved, so clear out the "pin in progress" value
 		let pinForSavedPhotos = notification.userInfo![FlickrConstants.Notifications.PinForSavedPhotosKey] as! Pin

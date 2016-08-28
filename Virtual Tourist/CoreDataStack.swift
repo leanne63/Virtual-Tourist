@@ -95,7 +95,7 @@ class CoreDataStack {
 	// TODO: use for testing
 	func dropAllData() throws{
 		// delete all the objects in the db. This won't delete the files, it will
-		// just leave empty tables.
+		// just leave empty tables. (adapted from Fernando's code in Udacity Core Data course)
 		let dbURL = self.applicationDocumentsDirectory.URLByAppendingPathComponent("Virtual_Tourist.sqlite")
 		
 		try persistentStoreCoordinator.destroyPersistentStoreAtURL(dbURL, withType:NSSQLiteStoreType , options: nil)
