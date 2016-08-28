@@ -49,15 +49,15 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		// if the photo download from the map view for this pin is not currently in progress,
 		//	we can continue loading photos
-		if pinForPhotosInProgress == nil || pinForPhotosInProgress != pin {
+		waitingForPhotos = (pinForPhotosInProgress != nil && pinForPhotosInProgress == pin)
+		if !waitingForPhotos {
 			loadPhotos()
 		}
 		else {
+			// if our pin is in progress from the map page, though, we need to load
+			//	placeholders, and wait til we get notification that the save completed
 			waitingForPhotos = true
 		}
-		
-		// if our pin is in progress from the map page, though, we need to load
-		//	placeholders, and wait til we get notification that the save completed
     }
 	
 	deinit {
@@ -79,7 +79,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     }
 
 	func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath)
+
+		let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath)
 
 		let cellImageView = cell.viewWithTag(1) as! UIImageView
 		
@@ -180,18 +181,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	}
 	
 	func photosWillSave(notification: NSNotification) {
-		// TODO: remove prints
-		print("***** \(#function) Album - PhotosWillSaveNotification *****")
-		print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
 		
 		// set the expected number of photos to allow for placeholders
 		expectedNumPhotos = notification.userInfo![FlickrConstants.Notifications.NumPhotosToBeSavedKey] as! Int
 	}
 	
 	func photosDidSave(notification: NSNotification) {
-		// TODO: remove prints
-		print("***** \(#function) Album - PhotosDidSaveNotification *****")
-		print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
 		
 		waitingForPhotos = false
 		loadPhotos()
@@ -199,9 +194,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	}
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
-		// TODO: remove prints
-		print("***** \(#function) Album - NSManagedObjectContextDidSaveNotification *****")
-		print("current thread: \(NSThread.currentThread()) (\(NSThread.currentThread().name))")
 		
 		// received notice that main managed object has saved; so reload a cell with its new photo
 		if requestingNewPhotos {
