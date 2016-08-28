@@ -110,8 +110,8 @@ class Flickr {
 
 		let fakeURL = NSURL(string: FlickrConstants.Network.FakeURLForAccessTest)
 		guard SCNetworkReachability.checkIfNetworkAvailable(fakeURL!) == true else {
-			let userInfo = [FlickrConstants.NotificationKeys.MessageKey: FlickrConstants.Network.NoAccessMessage]
-			NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotoRetrievalDidFailNotification, object: nil, userInfo: userInfo)
+			let userInfo = [FlickrConstants.Notifications.MessageKey: FlickrConstants.Network.NoAccessMessage]
+			NSNotificationCenter.postNotificationOnMain(FlickrConstants.Notifications.PhotoRetrievalDidFailNotification, object: nil, userInfo: userInfo)
 			return
 		}
 		
@@ -194,8 +194,8 @@ class Flickr {
 		
 		let fakeURL = NSURL(string: FlickrConstants.Network.FakeURLForAccessTest)
 		guard SCNetworkReachability.checkIfNetworkAvailable(fakeURL!) == true else {
-			let userInfo = [FlickrConstants.NotificationKeys.MessageKey: FlickrConstants.Network.NoAccessMessage]
-			NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotoRetrievalDidFailNotification, object: nil, userInfo: userInfo)
+			let userInfo = [FlickrConstants.Notifications.MessageKey: FlickrConstants.Network.NoAccessMessage]
+			NSNotificationCenter.postNotificationOnMain(FlickrConstants.Notifications.PhotoRetrievalDidFailNotification, object: nil, userInfo: userInfo)
 			return
 		}
 		let task = NSURLSession.sharedSession().dataTaskWithRequest(request) {
@@ -204,9 +204,9 @@ class Flickr {
 			var userInfo: [String: AnyObject]!
 			func sendErrorNotification(errorMsg: String) {
 				// notify observers of failure
-				userInfo = [FlickrConstants.NotificationKeys.MessageKey: errorMsg]
-				userInfo[FlickrConstants.NotificationKeys.RequestURLKey] = String(request.URL!)
-				NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotoRetrievalDidFailNotification, object: nil, userInfo: userInfo)
+				userInfo = [FlickrConstants.Notifications.MessageKey: errorMsg]
+				userInfo[FlickrConstants.Notifications.RequestURLKey] = String(request.URL!)
+				NSNotificationCenter.postNotificationOnMain(FlickrConstants.Notifications.PhotoRetrievalDidFailNotification, object: nil, userInfo: userInfo)
 			}
 			
 			guard (error == nil) else {
@@ -247,8 +247,8 @@ class Flickr {
 			
 			// notify observers of photo count
 			let numPhotosToBeSaved = photoArray.count
-			userInfo = [FlickrConstants.NotificationKeys.NumPhotosToBeSavedKey : numPhotosToBeSaved]
-			NSNotificationCenter.postNotificationOnMain(FlickrConstants.NotificationKeys.PhotosWillSaveNotification, object: nil, userInfo: userInfo)
+			userInfo = [FlickrConstants.Notifications.NumPhotosToBeSavedKey : numPhotosToBeSaved]
+			NSNotificationCenter.postNotificationOnMain(FlickrConstants.Notifications.PhotosWillSaveNotification, object: nil, userInfo: userInfo)
 
 			
 			// if no photos were retrieved, we don't need to save anything, so just return
@@ -260,6 +260,7 @@ class Flickr {
 			// alrighty, then! We've got photos, so let's save them as managed objects!
 			// BUT, we're on a background thread, so save the photos via a private queue OFF the main context
 			let privateContext = CoreDataStack.shared.privateManagedObjectContext
+			
 			privateContext.performBlock {
 				//	note: current pin is in main context; we must use a copy retrieved via this private context
 				guard let managedPin = try? privateContext.existingObjectWithID(self.pin.objectID) as! Pin else {
@@ -293,10 +294,16 @@ class Flickr {
 						
 						// then save the parent (main) context, so the changes will be committed to the store
 						NSOperationQueue.mainQueue().addOperationWithBlock {
+
 							CoreDataStack.shared.saveContext()
 						}
 					}
 				}
+				
+				// notify observers that photo save has completed
+				let userInfo = [FlickrConstants.Notifications.PinForSavedPhotosKey: self.pin]
+				NSNotificationCenter.postNotificationOnMain(
+					FlickrConstants.Notifications.PhotosDidSaveNotification, object: self, userInfo: userInfo)
 			}
 		}
 		
@@ -309,8 +316,8 @@ class Flickr {
 		components.scheme = FlickrConstants.API.Scheme
 		components.host = FlickrConstants.API.Host
 		components.path = FlickrConstants.API.Path
-		// don't need to init array, 'cause known type
-		//components.queryItems = [NSURLQueryItem]()
+		
+		// empty the queryItems array to ensure we're not using old stuff, then load it
 		components.queryItems = []
 		
 		for (key, value) in parameters {

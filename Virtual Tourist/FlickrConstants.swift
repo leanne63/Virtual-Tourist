@@ -37,13 +37,15 @@ struct FlickrConstants {
 	}
 	
 	// MARK: Flickr Notification Keys
-	struct NotificationKeys {
+	struct Notifications {
 		static let MessageKey = "Message"
 		static let RequestURLKey = "RequestURL"
 		
 		static let NumPhotosToBeSavedKey = "NumPhotosToBeSaved"
+		static let PinForSavedPhotosKey = "PinForSavedPhotos"
 		
 		static let PhotosWillSaveNotification = "PhotosWillSaveNotification"
+		static let PhotosDidSaveNotification = "PhotosDidSaveNotification"
 		static let PhotoRetrievalDidFailNotification = "PhotoRetrievalDidFailNotification"
 	}
 	

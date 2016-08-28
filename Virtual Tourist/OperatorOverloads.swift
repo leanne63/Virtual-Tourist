@@ -8,7 +8,7 @@
 
 import MapKit
 
-// MARK: - CLLocationCoordinate2D Comparison Operator (==)
+// MARK: - CLLocationCoordinate2D Comparison Operators (==, !=)
 
 /*
 From:
@@ -21,7 +21,7 @@ then you need at least seven and probably eight decimal places, but more will do
 // note: see equatable declaration in Extension_CLLocationCoordinate2D.swift
 // note: function must be declared public because equatable protocol is public
 
-/// Returns true if the two coordinates match with a precision of 6 decimal places; false if not
+/// Returns true if the two coordinates don't match with a precision of 6 decimal places; false if they do
 public func ==(lhs: CLLocationCoordinate2D, rhs: CLLocationCoordinate2D) -> Bool {
 	
 	let sixPlaces = 1000000.0
@@ -45,7 +45,7 @@ func !=(lhs: CLLocationCoordinate2D, rhs: CLLocationCoordinate2D) -> Bool {
 }
 
 
-// MARK: - Pin Compound Addition Operator (+=)s
+// MARK: - Pin Compound Addition Operator (+=)
 
 /// Overrides += to assign CLLocationCoordinate2D values to a Pin
 func +=(inout lhs: Pin, rhs: CLLocationCoordinate2D) {
@@ -53,4 +53,26 @@ func +=(inout lhs: Pin, rhs: CLLocationCoordinate2D) {
 	lhs.latitude = rhs.latitude
 	lhs.longitude = rhs.longitude
 }
+
+
+// MARK: - Pin Comparison Operators (==, !=)
+
+/// Returns true if the two Pin's coordinates match with a precision of 6 decimal places; false if not
+func ==(lhs: Pin, rhs: Pin) -> Bool {
+	
+	let lhsCoordinate = CLLocationCoordinate2DMake(lhs.latitude, lhs.longitude)
+	let rhsCoordinate = CLLocationCoordinate2DMake(rhs.latitude, rhs.longitude)
+	
+	return (lhsCoordinate == rhsCoordinate)
+}
+
+/// Returns true if the two Pin's coordinates don't match with a precision of 6 decimal places; false if they do
+func !=(lhs: Pin, rhs: Pin) -> Bool {
+	
+	let lhsCoordinate = CLLocationCoordinate2DMake(lhs.latitude, lhs.longitude)
+	let rhsCoordinate = CLLocationCoordinate2DMake(rhs.latitude, rhs.longitude)
+	
+	return !(lhsCoordinate == rhsCoordinate)
+}
+
 
