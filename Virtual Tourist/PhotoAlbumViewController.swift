@@ -27,9 +27,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	/// Indicates whether new photos have been requested
 	var requestingNewPhotos = false
 	/// Indicates whether photos are still being loaded from map view's request
-	var waitingForPhotos = false
+	var waitingForPhotosFromFlickr = false
 	/// Number of photos expected to be retrieved from new photo request
 	var expectedNumPhotos: Int = FlickrConstants.Defaults.NumberOfPhotos
+	/// Indicates whether collection view cells should be selectable
+	var cellsAreSelectable = false
 	
 	
 	// MARK: - Outlets
@@ -43,20 +45,20 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     override func viewDidLoad() {
         super.viewDidLoad()
 		
-		collectionView!.delegate = self
+		collectionView.delegate = self
 		
 		subscribeToNotifications()
 		
 		// if the photo download from the map view for this pin is not currently in progress,
 		//	we can continue loading photos
-		waitingForPhotos = (pinForPhotosInProgress != nil && pinForPhotosInProgress == pin)
-		if !waitingForPhotos {
+		waitingForPhotosFromFlickr = (pinForPhotosInProgress != nil && pinForPhotosInProgress == pin)
+		if !waitingForPhotosFromFlickr {
 			loadPhotos()
 		}
 		else {
 			// if our pin is in progress from the map page, though, we need to load
 			//	placeholders, and wait til we get notification that the save completed
-			waitingForPhotos = true
+			waitingForPhotosFromFlickr = true
 		}
     }
 	
@@ -85,10 +87,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		let cellImageView = cell.viewWithTag(1) as! UIImageView
 		
 		// we're requesting new photos, but haven't received any yet: all indices get placeholder + activity indicator
-		let noPhotosAvailable = (photos.count == 0)
-		let needPlaceholders = (requestingNewPhotos && noPhotosAvailable) || waitingForPhotos
-		
-		if needPlaceholders  {
+		if needPlaceholders()  {
+			// since we have some cells that aren't loaded, make sure our cells aren't selectable yet!
+			cellsAreSelectable = false
+			
 			// place an activity indicator in the cell to note photos are coming!
 			cellImageView.hidden = true
 			
@@ -115,9 +117,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 			cellImageView.hidden = false
 			
 			// if we're on the last photo, re-enable the "new collection" button
+			let currentItemNum = indexPath.item
 			let isLastItem =
-				(requestingNewPhotos && indexPath.item == expectedNumPhotos - 1) ||
-				(!requestingNewPhotos && indexPath.item == photos.count - 1)
+				(requestingNewPhotos && currentItemNum == expectedNumPhotos - 1) ||
+				(!requestingNewPhotos && currentItemNum == photos.count - 1)
 			if isLastItem {
 				requestingNewPhotos = false
 				newCollectionButton.enabled = true
@@ -133,6 +136,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 					}
 					collectionView.deleteItemsAtIndexPaths(indexPathArray)
 				}
+				
+				// since we're done loading the collection view, mark the cells as selectable
+				cellsAreSelectable = true
 			}
 		}
 
@@ -143,7 +149,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 
     func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
 		
-        return true
+		return cellsAreSelectable
     }
 	
 	func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
@@ -188,8 +194,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	func photosDidSave(notification: NSNotification) {
 		
-		if waitingForPhotos {
-			waitingForPhotos = false
+		if waitingForPhotosFromFlickr {
+			waitingForPhotosFromFlickr = false
 			loadPhotos()
 			collectionView.reloadData()
 		}
@@ -197,8 +203,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
 		
+		let mainContext = CoreDataStack.shared.mainManagedObjectContext
+		let savedContext = notification.object as! NSManagedObjectContext
+		let isMainManagedObjectContext = (mainContext == savedContext)
+		
 		// received notice that main managed object has saved; so reload a cell with its new photo
-		if requestingNewPhotos {
+		if isMainManagedObjectContext && requestingNewPhotos {
 			guard let userInfo = notification.userInfo, let insertedObjects = userInfo[NSInsertedObjectsKey]
 				where insertedObjects.count > 0 else {
 					// we only care about inserted items in this controller
@@ -238,6 +248,17 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	// MARK: - Private Functions
 	
+	/// Determines if placeholders are needed in collection view.
+	private func needPlaceholders() -> Bool {
+		
+		let noPhotosAvailable = (photos.count == 0)
+		let requestIncomplete = (requestingNewPhotos && noPhotosAvailable)
+		let needsPlaceholders = (requestIncomplete || waitingForPhotosFromFlickr)
+		
+		return needsPlaceholders
+	}
+	
+	/// Loads photos from database, if present, or requests new photos if not.
 	private func loadPhotos() {
 		
 		let photosPresent = loadPhotosFromDB()
@@ -250,12 +271,18 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		}
 	}
 	
+	/// Calls Flickr model to retrieve photos.
 	private func retrieveNewPhotosFromFlickr() {
 		
 		let flickrAPI = Flickr()
 		flickrAPI.getImages(forPin: pin)
 	}
 	
+	/**
+	Attempts to load photos array from database.
+	
+	- returns: True, if photo load completes successfully; false if no photos were found in database.
+	*/
 	private func loadPhotosFromDB() -> Bool {
 		// retrieve any photos related to the pin
 		let mainContext = CoreDataStack.shared.mainManagedObjectContext
@@ -272,6 +299,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		return true
 	}
 	
+	/**
+	Deletes specified managed photo from the photo array and the database.
+	
+	- parameter row: Index of managed photo to be deleted.
+	*/
 	private func deletePhotoAtRow(row: Int) {
 		
 		let mainContext = CoreDataStack.shared.mainManagedObjectContext
