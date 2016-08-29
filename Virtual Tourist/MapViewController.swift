@@ -33,7 +33,16 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-
+		
+//		// TODO: REMOVE BELOW - USED ONLY FOR TESTING
+//		do {
+//			try CoreDataStack.shared.dropAllData()
+//		}
+//		catch {
+//			// do nothing
+//		}
+//		// TODO: REMOVE ABOVE - USED ONLY FOR TESTING
+		
 		mapView.delegate = self
 		
 		subscribeToNotifications()

@@ -27,7 +27,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	/// Indicates whether new photos have been requested
 	var requestingNewPhotos = false
 	/// Indicates whether photos are still being loaded from map view's request
-	var waitingForPhotosFromFlickr = false
+	var waitingForInitialPhotos = false
 	/// Number of photos expected to be retrieved from new photo request
 	var expectedNumPhotos: Int = FlickrConstants.Defaults.NumberOfPhotos
 	/// Indicates whether collection view cells should be selectable
@@ -47,19 +47,25 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		collectionView.delegate = self
 		
-		subscribeToNotifications()
+		// subscribe immediately to the photosDidSave notification, so we can take advantage
+		//	of this one while waiting for initial photos without others getting in the way
+		NSNotificationCenter.defaultCenter().addObserver(self,
+		                                                 selector: #selector(photosDidSave(_:)),
+		                                                 name: FlickrConstants.Notifications.PhotosDidSaveNotification,
+		                                                 object: nil)
+		
 		
 		// if the photo download from the map view for this pin is not currently in progress,
-		//	we can continue loading photos
-		waitingForPhotosFromFlickr = (pinForPhotosInProgress != nil && pinForPhotosInProgress == pin)
-		if !waitingForPhotosFromFlickr {
+		//	we can continue loading photos and watch for all notifications
+		waitingForInitialPhotos = (pinForPhotosInProgress != nil && pinForPhotosInProgress == pin)
+		if !waitingForInitialPhotos {
 			loadPhotos()
+			subscribeToNotifications()
 		}
-		else {
-			// if our pin is in progress from the map page, though, we need to load
-			//	placeholders, and wait til we get notification that the save completed
-			waitingForPhotosFromFlickr = true
-		}
+
+		// if our pin is in progress from the map page, though, we need to load
+		//	placeholders, and wait til we get notification that the save completed
+		setUpCollectionViewBackground(isEmpty: true)
     }
 	
 	deinit {
@@ -81,11 +87,18 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     }
 
 	func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+		
+		setUpCollectionViewBackground(isEmpty: false)
 
 		let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath)
 
 		let cellImageView = cell.viewWithTag(1) as! UIImageView
 		
+		let currentItemNum = indexPath.item
+		let isLastItem =
+			(requestingNewPhotos && currentItemNum == expectedNumPhotos - 1) ||
+				(!requestingNewPhotos && currentItemNum == photos.count - 1)
+
 		// we're requesting new photos, but haven't received any yet: all indices get placeholder + activity indicator
 		if needPlaceholders()  {
 			// since we have some cells that aren't loaded, make sure our cells aren't selectable yet!
@@ -117,10 +130,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 			cellImageView.hidden = false
 			
 			// if we're on the last photo, re-enable the "new collection" button
-			let currentItemNum = indexPath.item
-			let isLastItem =
-				(requestingNewPhotos && currentItemNum == expectedNumPhotos - 1) ||
-				(!requestingNewPhotos && currentItemNum == photos.count - 1)
 			if isLastItem {
 				requestingNewPhotos = false
 				newCollectionButton.enabled = true
@@ -158,6 +167,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		deletePhotoAtRow(arrayRow)
 		
 		collectionView.deleteItemsAtIndexPaths([indexPath])
+		
+		if collectionView.visibleCells().count == 0 {
+			setUpCollectionViewBackground(isEmpty: true)
+		}
 	}
 
 	
@@ -172,12 +185,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		                                                 name: FlickrConstants.Notifications.PhotosWillSaveNotification,
 		                                                 object: nil)
 
-		NSNotificationCenter.defaultCenter().addObserver(self,
-		                                                 selector: #selector(photosDidSave(_:)),
-		                                                 name: FlickrConstants.Notifications.PhotosDidSaveNotification,
-		                                                 object: nil)
-		
-		
 		/* Managed Object Context notifications */
 		
 		NSNotificationCenter.defaultCenter().addObserver(self,
@@ -194,10 +201,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	func photosDidSave(notification: NSNotification) {
 		
-		if waitingForPhotosFromFlickr {
-			waitingForPhotosFromFlickr = false
+		if waitingForInitialPhotos {
+			waitingForInitialPhotos = false
+			
 			loadPhotos()
 			collectionView.reloadData()
+			
+			// now that we've received the initial photos, turn on the rest of the notifications
+			subscribeToNotifications()
 		}
 	}
 	
@@ -248,12 +259,57 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	// MARK: - Private Functions
 	
+	/**
+	Sets up collection view's background to display message if it's empty, or clear it if not
+	*/
+	func setUpCollectionViewBackground(isEmpty isEmpty: Bool) {
+		
+		guard let theCollectionView = collectionView else {
+			return
+		}
+		
+		// code modified from:
+		// iOS Programming 101: Implementing Pull-to-Refresh and Handling Empty Table
+		//	Simon Ng, 11 July 2014
+		//	http://www.appcoda.com/pull-to-refresh-uitableview-empty/
+		
+		let emptyMessageText: String
+		if waitingForInitialPhotos {
+			emptyMessageText = "Photos are on their way!\n\nPlease be patient..."
+		}
+		else {
+			emptyMessageText = "Photos have all been deleted!\n\nPress New Collection button for more."
+		}
+		
+		let fontName = "Palatino-Italic"
+		let fontSize: CGFloat = 20.0
+		
+		if !isEmpty {
+			if theCollectionView.backgroundView != nil {
+				theCollectionView.backgroundView = nil
+			}
+		}
+		else {
+			if theCollectionView.backgroundView == nil {
+				let emptyMessageLabel = UILabel(frame: CGRectMake(0, 0, view.bounds.size.width, view.bounds.size.height))
+				emptyMessageLabel.text = emptyMessageText
+				emptyMessageLabel.numberOfLines = 0
+				emptyMessageLabel.font = UIFont(name: fontName, size: fontSize)
+				emptyMessageLabel.textAlignment = .Center
+				emptyMessageLabel.sizeToFit()
+				
+				theCollectionView.backgroundView = emptyMessageLabel
+			}
+		}
+	}
+
+	
 	/// Determines if placeholders are needed in collection view.
 	private func needPlaceholders() -> Bool {
 		
 		let noPhotosAvailable = (photos.count == 0)
 		let requestIncomplete = (requestingNewPhotos && noPhotosAvailable)
-		let needsPlaceholders = (requestIncomplete || waitingForPhotosFromFlickr)
+		let needsPlaceholders = (requestIncomplete || waitingForInitialPhotos)
 		
 		return needsPlaceholders
 	}
