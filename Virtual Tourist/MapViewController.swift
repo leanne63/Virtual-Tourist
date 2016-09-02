@@ -21,7 +21,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 	// MARK: - Properties (Non-Outlets)
 	
 	var startAnnotation = MKPointAnnotation()
-	var pinForPhotosInProgress: Pin?
 
 
 	// MARK: - Properties (Outlets)
@@ -44,8 +43,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 //		// TODO: REMOVE ABOVE - USED ONLY FOR TESTING
 		
 		mapView.delegate = self
-		
-		subscribeToNotifications()
 		
 		let hasLaunchedPreviously: Bool = NSUserDefaults.standardUserDefaults().boolForKey(hasLaunchedKey)
 		if !hasLaunchedPreviously {
@@ -83,7 +80,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			
 			let destController = segue.destinationViewController as! PhotoAlbumViewController
 			destController.pin = pinsFound[0]
-			destController.pinForPhotosInProgress = pinForPhotosInProgress
 		}
 	}
 	
@@ -132,11 +128,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 			
 			// commit the new pin to the store
 			CoreDataStack.shared.saveContext()
-
-			// call Flickr API to retrieve photos for this pin
-			pinForPhotosInProgress = newPin
-			let flickrAPI = Flickr()
-			flickrAPI.getImages(forPin: newPin)
 		}
 	}
 	
@@ -152,28 +143,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 		performSegueWithIdentifier(photoAlbumSegueID, sender: view)
 	}
 	
-	
-	// MARK: - Observer-Related Methods
-	
-	private func subscribeToNotifications() {
-		
-		/* custom app-specific notifications */
-		
-		NSNotificationCenter.defaultCenter().addObserver(self,
-		                                                 selector: #selector(photosDidSave(_:)),
-		                                                 name: FlickrConstants.Notifications.PhotosDidSaveNotification,
-		                                                 object: nil)
-		
-	}
-	
-	func photosDidSave(notification: NSNotification) {
-		
-		// photos saved, so clear out the "pin in progress" value
-		let pinForSavedPhotos = notification.userInfo![FlickrConstants.Notifications.PinForSavedPhotosKey] as! Pin
-		if pinForSavedPhotos == pinForPhotosInProgress {
-			pinForPhotosInProgress = nil
-		}
-	}
 	
 	// MARK: - Private Utility Functions
 	
