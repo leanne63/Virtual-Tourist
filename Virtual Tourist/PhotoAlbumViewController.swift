@@ -20,14 +20,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	
 	/// Selected pin for which photos are to be displayed
 	var pin: Pin!
-	/// Pin, if any, whose photos were being downloaded when this controller became active
-	var pinForPhotosInProgress: Pin?
 	/// Array to hold photos to be displayed for pin
 	var photos = [Photo]()
 	/// Indicates whether new photos have been requested
 	var requestingNewPhotos = false
-	/// Indicates whether photos are still being loaded from map view's request
-	var waitingForInitialPhotos = false
 	/// Number of photos expected to be retrieved from new photo request
 	var expectedNumPhotos: Int = FlickrConstants.Defaults.NumberOfPhotos
 	/// Indicates whether collection view cells should be selectable
@@ -47,25 +43,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		collectionView.delegate = self
 		
-		// subscribe immediately to the photosDidSave notification, so we can take advantage
-		//	of this one while waiting for initial photos without others getting in the way
-		NSNotificationCenter.defaultCenter().addObserver(self,
-		                                                 selector: #selector(photosDidSave(_:)),
-		                                                 name: FlickrConstants.Notifications.PhotosDidSaveNotification,
-		                                                 object: nil)
-		
-		
-		// if the photo download from the map view for this pin is not currently in progress,
-		//	we can continue loading photos and watch for all notifications
-		waitingForInitialPhotos = (pinForPhotosInProgress != nil && pinForPhotosInProgress == pin)
-		if !waitingForInitialPhotos {
-			loadPhotos()
-			subscribeToNotifications()
-		}
+		subscribeToNotifications()
 
-		// if our pin is in progress from the map page, though, we need to load
-		//	placeholders, and wait til we get notification that the save completed
-		setUpCollectionViewBackground(isEmpty: true)
+		loadPhotos()
     }
 	
 	deinit {
@@ -185,6 +165,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		                                                 name: FlickrConstants.Notifications.PhotosWillSaveNotification,
 		                                                 object: nil)
 
+		
 		/* Managed Object Context notifications */
 		
 		NSNotificationCenter.defaultCenter().addObserver(self,
@@ -197,19 +178,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		
 		// set the expected number of photos to allow for placeholders
 		expectedNumPhotos = notification.userInfo![FlickrConstants.Notifications.NumPhotosToBeSavedKey] as! Int
-	}
-	
-	func photosDidSave(notification: NSNotification) {
-		
-		if waitingForInitialPhotos {
-			waitingForInitialPhotos = false
-			
-			loadPhotos()
-			collectionView.reloadData()
-			
-			// now that we've received the initial photos, turn on the rest of the notifications
-			subscribeToNotifications()
-		}
 	}
 	
 	func managedObjectContextDidSave(notification: NSNotification) {
@@ -260,7 +228,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	// MARK: - Private Functions
 	
 	/**
-	Sets up collection view's background to display message if it's empty, or clear it if not
+	Sets up collection view's background to display message if it's empty, or clear it if not.
+	
+	- parameter isEmpty: Indicates whether the collection view has no visible cells (is empty).
 	*/
 	func setUpCollectionViewBackground(isEmpty isEmpty: Bool) {
 		
@@ -273,13 +243,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 		//	Simon Ng, 11 July 2014
 		//	http://www.appcoda.com/pull-to-refresh-uitableview-empty/
 		
-		let emptyMessageText: String
-		if waitingForInitialPhotos {
-			emptyMessageText = "Photos are on their way!\n\nPlease be patient..."
-		}
-		else {
-			emptyMessageText = "Photos have all been deleted!\n\nPress New Collection button for more."
-		}
+		let	emptyMessageText = "Photos have all been deleted!\n\nPress New Collection button for more."
 		
 		let fontName = "Palatino-Italic"
 		let fontSize: CGFloat = 20.0
@@ -308,8 +272,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	private func needPlaceholders() -> Bool {
 		
 		let noPhotosAvailable = (photos.count == 0)
-		let requestIncomplete = (requestingNewPhotos && noPhotosAvailable)
-		let needsPlaceholders = (requestIncomplete || waitingForInitialPhotos)
+		let needsPlaceholders = (requestingNewPhotos && noPhotosAvailable)
 		
 		return needsPlaceholders
 	}
@@ -317,7 +280,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	/// Loads photos from database, if present, or requests new photos if not.
 	private func loadPhotos() {
 		
-		let photosPresent = loadPhotosFromDB()
+		let photosPresent: Bool = loadPhotosFromDB()
 		
 		newCollectionButton.enabled = photosPresent
 		
@@ -340,6 +303,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 	- returns: True, if photo load completes successfully; false if no photos were found in database.
 	*/
 	private func loadPhotosFromDB() -> Bool {
+		
 		// retrieve any photos related to the pin
 		let mainContext = CoreDataStack.shared.mainManagedObjectContext
 		let photoRequest = NSFetchRequest.allPhotosForPin(pin)

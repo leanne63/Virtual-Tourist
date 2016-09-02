@@ -15,7 +15,7 @@ class Flickr {
 	
 	// MARK: - Properties
 	
-	var pin: Pin!
+	private var pin: Pin!
 	
 	
 	// MARK: - Protected Functions
