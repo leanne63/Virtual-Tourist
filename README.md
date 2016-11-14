@@ -6,7 +6,7 @@ UI Flow for app (iPhone 6 Simulator):
 ![map for placing pins](README_images/VirtualTourist_1-Map.png "Map for placing pins in the areas where you'd like to get publicly available Flickr photos.")
 
 
-2) Zoom to an area where you'd like to place a pin, then long press the desired location.
+2) Zoom to an area where you'd like to place a pin, then long press the desired location to place a pin.
 
 ![zoomed map view](README_images/VirtualTourist_2-PlacePin.png "Zoomed map view with pin in place.")
 
