@@ -14,6 +14,7 @@ UI Flow for app (iPhone 6 Simulator):
 3) Tapping the pin segues to the "album" view, where photos begin loading.
 
 ![user tapped pin](README_images/3_MapViewWSearchText.png "Map segues to album view, showing photos loading.")
+
 ![waiting for photos to load](README_images/VirtualTourist_3a-LoadingProgress.png "Activity indicators reflect ongoing downloads, and New Collection button is disabled.")
 
 5) Up to 10 images will display upon download completion. Tap the New Collection button to replace the existing images with a new set.
