@@ -17,7 +17,8 @@ UI Flow for app (iPhone 6 Simulator):
 
 ![waiting for photos to load](README_images/VirtualTourist_3a-LoadingProgress.png "Activity indicators reflect ongoing downloads, and New Collection button is disabled.")
 
-5) Up to 10 images will display upon download completion. Tap the New Collection button to replace the existing images with a new set.
+
+4) Up to 10 images will display upon download completion. Tap the New Collection button to replace the existing images with a new set.
 
 ![album view with all photos downloaded](README_images/VirtualTourist_4-PhotosLoaded.png "Album view showing up to 10 results for pin location.")
 
